@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Vite + TS</title>
+	</head>
+	<body>
+		<!-- <div id="app"></div> -->
+		<main>
+			<header hn-use="event123abc"></header>
+
+			<header hn-kind="hn-kind" hn-author="hn-author">
+				<pre>ID:<span hn-field="id"></span></pre>
+				<pre>Pubkey:<span hn-field="pubkey"></span></pre>
+				<!-- No way to get a pretty date without JS? -->
+				<pre>Created at:<time hn-field="created_at"></time></pre>
+				<h2 hn-field="content.name">No Name</h2>
+				<p>About: <span hn-field="content.about"></span></p>
+				<img hn-src="content.picture" />
+				<pre>Sig:<span hn-field="sig"></span></pre>
+			</header>
+
+			<header
+				hn-kind="0"
+				hn-author="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+			>
+				<pre>ID:<span hn-field="id"></span></pre>
+				<pre>Pubkey:<span hn-field="pubkey"></span></pre>
+				<!-- No way to get a pretty date without JS? -->
+				<pre>Created at:<time hn-field="created_at"></time></pre>
+				<h2 hn-field="content.name">No Name</h2>
+				<p>About: <span hn-field="content.about"></span></p>
+				<img hn-src="content.picture" />
+				<pre>Sig:<span hn-field="sig"></span></pre>
+			</header>
+
+			<content>
+				<section
+					hn-kind="1"
+					hn-author="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+					hn-limit="10"
+				>
+					<pre>ID:<span hn-field="id"></span></pre>
+					<pre>Created at:<time hn-field="created_at" hn-dvm="to-iso-time"></time></pre>
+					<p>Content: <span hn-field="content"></span></p>
+				</section>
+			</content>
+		</main>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
