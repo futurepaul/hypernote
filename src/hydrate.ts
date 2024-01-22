@@ -108,7 +108,7 @@ async function handleKind(hnParent: HTMLElement, ndk: NDK) {
 	hnParent.remove();
 }
 
-function hydrateFields(
+export function hydrateFields(
 	parent: HTMLElement,
 	event: NDKEvent,
 	parsedContent?: any
@@ -128,7 +128,7 @@ function hydrateFields(
 	});
 }
 
-function hydrateSources(
+export function hydrateSources(
 	parent: HTMLElement,
 	event: NDKEvent,
 	parsedContent?: any
@@ -148,7 +148,7 @@ function hydrateSources(
 	});
 }
 
-function processContent(content?: string) {
+export function processContent(content?: string) {
 	if (!content) {
 		return content;
 	}

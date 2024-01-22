@@ -1,12 +1,12 @@
-/* :root {
+:root {
 	font-family: "SF Mono", SFMono-Regular, ui-monospace, "DejaVu Sans Mono",
 		Menlo, Consolas, monospace;
 	line-height: 1.5;
 	font-weight: 400;
 
 	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+	color: white;
+	background-color: black;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -14,33 +14,28 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-pre {
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
+body {
+	/* padding: 1rem; */
+
+	display: flex;
+	flex-direction: column;
+	/* gap: 1rem; */
 }
 
-header {
-	grid: 1fr;
-}
-content {
-	display: grid;
-	grid-template-rows: repeat(auto-fill, minmax(0, 1fr));
-	gap: 1rem;
-}
-
-section {
-	padding: 1rem;
-	background: black;
-	border-radius: 0.5rem;
+* {
+	box-sizing: border-box;
+	min-width: 0px;
+	padding: 0px;
+	margin: 0px;
 }
 
 @media (prefers-color-scheme: light) {
 	:root {
-		color: #213547;
+		color: black;
 		background-color: #ffffff;
 	}
 
 	section {
 		background: #f5f5f5;
 	}
-} */
+}

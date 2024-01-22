@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+	</head>
+	<body>
+		<!-- <template id="note-basic">
+			<style>
+				p {
+					color: white;
+				}
+
+				#note {
+					padding: 1rem;
+					background: rgba(255, 255, 255, 0.1);
+				}
+
+				[hn-field="id"] {
+					white-space: pre-wrap;
+					overflow-wrap: break-word;
+				}
+			</style>
+			<div id="note">
+				<p><span hn-field="content">Note content goes here</span></p>
+				<pre><strong>ID:</strong> <a href="#" hn-ref="id" hn-field="id"></a></pre>
+			</div>
+		</template> -->
+		<template id="profile-basic">
+			<style>
+				#note {
+					padding: 1rem;
+					background: rgba(255, 255, 255, 0.2);
+				}
+
+				img {
+					width: 8rem;
+					height: 8rem;
+					object-fit: cover;
+				}
+			</style>
+			<div id="profile">
+				<pre><strong>ID:</strong> <a href="#" hn-ref="id" hn-field="id"></a></pre>
+				<pre>Pubkey:<span hn-field="pubkey"></span></pre>
+				<!-- No way to get a pretty date without JS? -->
+				<!-- <pre>Created at:<time hn-field="created_at"></time></pre> -->
+				<h2 hn-field="content.name">No Name</h2>
+				<p>About: <span hn-field="content.about"></span></p>
+				<img hn-src="content.picture" />
+			</div>
+		</template>
+		<!-- hello world -->
+		<div
+			hn-use="hn-94e1b84a48dbcf43499be5255d41611e73e0668649a0ddc5d127b7ebd6da4413"
+		></div>
+		<header
+			hn-query
+			hn-kind="0"
+			hn-author="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+			hn-use="profile-basic"
+		></header>
+		<section
+			hn-query
+			hn-kind="1"
+			hn-author="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+			hn-limit="10"
+			hn-use="hn-c5c52e8e9ed3569feebdf8f8b643a068b30ed8b200fdc36787b17dfdfb07634a"
+			style="
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				overflow-x: scroll;
+			"
+		></section>
+		<!-- hn-use="hn-d05ac187b3c718092703f2f1a9030e3849ac17ddfac7edbbd751f230724f59e8" -->
+
+		<!-- <note-basic
+			hn-event="b34cb3778d3d81db1ee6654c18296a22480e9905e74d1487c86fdfed9a17d8c5"
+		>
+		</note-basic> -->
+		<script type="module" src="/src/newtest.ts"></script>
+	</body>
+</html>
