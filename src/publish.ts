@@ -89,7 +89,7 @@ const kind32616Events = await ndk.fetchEvents({
 	authors: [
 		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
 	],
-	"#d": ["test10"],
+	"#d": ["my-template"],
 	// tags: [["d", "test9"]]
 });
 
@@ -214,6 +214,7 @@ justIdForm?.addEventListener("submit", async (event) => {
 
 for (const event of kind32616Events) {
 	const pre = document.createElement("pre");
-	pre.innerHTML = JSON.stringify(event.rawEvent(), null, 2);
+	console.log(event.rawEvent())
+	pre.innerText = JSON.stringify(event.rawEvent(), null, 2);
 	document.body.appendChild(pre);
 }

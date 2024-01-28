@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+	</head>
+	<body>
+		<hn-element
+			hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-template"
+		></hn-element>
+		<hn-element
+			hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-template"
+		></hn-element>
+		<hn-element
+			hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/profile-basic"
+			hn-event="nostr:232c23509ded94d297714a703e06788278fbb4a645a09293b5ecca094858e2fa"
+		></hn-element>
+		<hn-query
+			kind="1"
+			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+		>
+		</hn-query>
+		<hn-query
+			kind="0"
+			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+		>
+			<hn-element
+				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/profile-basic"
+			></hn-element>
+		</hn-query>
+	</body>
+	<script type="module" src="/src/designdemo.ts"></script>
+</html>
