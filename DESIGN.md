@@ -38,8 +38,31 @@ a template that displays a kind 0 profile
 	<div>
 		<pre>Pubkey:<slot name="pubkey"></slot></pre>
 		<h2><slot name="content.name">No Name</slot></h2>
-		<!-- will be replaced with an image tag -->
-		<slot name="content.picture"></slot>
+		<hn-img value="content.picture"></hn-img>
+	</div>
+</template>
+```
+
+a template that displays a kind 1 note
+
+```html
+<template id="note-basic">
+	<style>
+		#note {
+			padding: 0.5rem;
+			background: rgba(0, 0, 0, 0.05);
+		}
+		p {
+			word-break: break-word;
+		}
+		.mono {
+			font-family: monospace;
+		}
+	</style>
+	<div id="note">
+		<p><slot name="content">Note content goes here</span></p>
+		<p class="mono"><strong>ID:</strong><hn-a value="id"></hn-a></p>
+		<p class="mono"><strong>DATE:</strong><hn-time value="created_at"></hn-time></p>
 	</div>
 </template>
 ```
@@ -148,19 +171,68 @@ hypernote named event
 display nip-23 markdown content
 
 ```html
+<template id="markdown-basic">
+	<h1><slot name="title"></h1>
+	<hn-img value="image"></hn-img>
+	<hn-markdown value="content">
+	</hn-markdown>
+</template>
+```
+
+```html
 <hn-query
 	limit="10"
     kind="23"
     authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
 >
-<h1><slot name="title"></h1>
-<hn-markdown name="content">
-</hn-markdown>
+	<h1><slot name="title"></h1>
+	<hn-markdown value="content">
+	</hn-markdown>
 </hn-query>
 ```
 
-pretty print time
+pretty print unix time
 
 ```html
-<hn-time timestamp="created_at"></hn-time>
+<hn-time value="created_at"></hn-time>
+```
+
+link to njump
+
+```html
+<hn-a value="id"></hn-a>
+```
+
+display an image
+
+```html
+<hn-img value="content.picture"></hn-img>
+```
+
+### Slide deck (putting it all together)
+
+```html
+<template id="sec-demo-slide-1">
+	<h1>this is slide 1</h1>
+	<p>
+		<a
+			href="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/sec-demo-slide-2"
+		>
+			this is a link to slide 2
+		</a>
+	</p>
+</template>
+```
+
+```html
+<template id="sec-demo-slide-2">
+	<h1>this is slide 2</h1>
+	<p>
+		<a
+			href="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/sec-demo-slide-1"
+		>
+			this is a link to slide 1
+		</a>
+	</p>
+</template>
 ```

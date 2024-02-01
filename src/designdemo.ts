@@ -1,381 +1,776 @@
-import NDK, { NostrEvent } from "@nostr-dev-kit/ndk";
+import NDK, { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
-const prefixes = ["nprofile", "nrelay", "nevent", "naddr", "nsec", "npub", "note"];
+
+// markdown stuff
+import { marked } from "marked";
+import { gfmHeadingId } from "marked-gfm-heading-id";
+import sanitizeHtml from "sanitize-html";
+
+const prefixes = [
+	"nprofile",
+	"nrelay",
+	"nevent",
+	"naddr",
+	"nsec",
+	"npub",
+	"note",
+];
 
 const ndk = new NDK({
-    explicitRelayUrls: [
-        "wss://pablof7z.nostr1.com",
-        "wss://nostr-pub.wellorder.net",
-    ],
-    enableOutboxModel: false,
+	explicitRelayUrls: [
+		"wss://pablof7z.nostr1.com",
+		"wss://nostr-pub.wellorder.net",
+		"wss://relay.damus.io",
+		"wss://relay.primal.net",
+	],
+	enableOutboxModel: false,
 });
 
 await ndk.connect(6000);
 
 class HyperNoteElement extends HTMLElement {
-    // LOGGING
-    // @ts-expect-error
-    log(...args) {
-        console.log(this.nodeName, `hn-template:${this.getAttribute("hn-template")}`, "\t\t\t", ...args);
-    }
+	// LOGGING
+	// @ts-expect-error
+	log(...args) {
+		console.log(
+			this.nodeName,
+			`hn-template:${this.getAttribute("hn-template")}`,
+			"\t\t\t",
+			...args
+		);
+	}
 
-    templateName: string | undefined;
+	templateName: string | undefined;
 
-    static observedAttributes = ["hn-template", "hn-event", "hn-event-data"];
+	static observedAttributes = ["hn-template", "hn-event", "hn-event-data"];
 
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 
-    async connectedCallback() {
-        // LOGGING
-        this.log("connectedCallback", this.innerHTML || "innerHTML not parsed yet");
+	async connectedCallback() {
+		// LOGGING
+		this.log(
+			"connectedCallback",
+			this.innerHTML || "innerHTML not parsed yet"
+		);
 
-        // be aware this.innerHTML is only available for PARSED elements
-        // use setTimeout(()=>{...},0) if you do need this.innerHTML
+		// be aware this.innerHTML is only available for PARSED elements
+		// use setTimeout(()=>{...},0) if you do need this.innerHTML
 
-        const templateId = this.getAttribute("hn-template");
+		const templateId = this.getAttribute("hn-template");
 
-        const [npub, templateName] = parseTemplateString(templateId);
+		const [npub, templateName] = parseTemplateString(templateId);
 
-        if (!npub || !templateName) {
-            console.error("Invalid template string. Should be formatted as nostr:<npub>/<templateName>");
-        }
+		if (!npub || !templateName) {
+			console.error(
+				"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
+			);
+		}
 
-        // If the template already exists no need to add it again
-        // TODO: this check doesn't work, we fetch each time
-        if (document.querySelector("#" + templateName)) {
-            console.log(`Template ${templateName} already exists`)
-            return;
-        } else {
-            console.log(`Fetching template ${templateName}`)
-            const template = await this.fetchTemplate(npub, templateName);
+		this.templateName = templateName;
 
-            if (!template) {
-                console.error("No template found");
-                return;
-            }
+		// If the template already exists no need to add it again
+		// TODO: this check doesn't work, we fetch each time
+		if (document.querySelector("#" + templateName)) {
+			console.log(`Template ${templateName} already exists`);
+			return;
+		} else {
+			console.log(`Fetching template ${templateName}`);
+			const template = await this.fetchTemplate(npub, templateName);
 
-            // Add the template to the dom
-            const templateElement = fromHTML(template);
-            if (!templateElement) {
-                console.error("Invalid template");
-                return;
-            }
-            document.body.append(templateElement);
-        }
+			if (!template) {
+				console.error("No template found");
+				return;
+			}
 
-        this.templateName = templateName;
+			// Add the template to the dom
+			const templateElement = fromHTML(template);
+			if (!templateElement) {
+				console.error("Invalid template");
+				return;
+			}
+			document.body.append(templateElement);
+		}
+	}
 
-        // If there's an event, fetch it and hydrate the element with the data
-        // If we already have hn-event-data set we don't have to bother fetching it ourselves
-        const eventData = this.getAttribute("hn-event-data");
-        const eventId = this.getAttribute("hn-event");
+	async swapForNewTemplate() {
+		const templateId = this.getAttribute("hn-template");
 
-        if (eventData) {
-            console.log("Didn't have to fetch event:", eventId);
-            this.render();
-            return;
-        }
+		const [npub, templateName] = parseTemplateString(templateId);
 
-        if (!eventId) {
-            console.log("No event id");
-            this.render();
-            return;
-        }
+		if (!npub || !templateName) {
+			console.error(
+				"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
+			);
+		}
 
-        const [_, id] = eventId.split(":");
+		// If the template already exists no need to add it again
+		// TODO: this check doesn't work, we fetch each time
+		if (document.querySelector("#" + templateName)) {
+			console.log(`Template ${templateName} already exists`);
+			return;
+		} else {
+			console.log(`Fetching template ${templateName}`);
+			const template = await this.fetchTemplate(npub, templateName);
 
-        if (!id) {
-            console.error("Invalid event id. It should start with nostr: and be a valid hex string");
-        }
+			if (!template) {
+				console.error("No template found");
+				return;
+			}
 
-        await this.fetchEvent(id);
-    }
+			// Add the template to the dom
+			const templateElement = fromHTML(template);
+			if (!templateElement) {
+				console.error("Invalid template");
+				return;
+			}
+			document.body.append(templateElement);
+		}
 
-    attributeChangedCallback(name: string, oldValue: unknown, newValue: unknown) {
-        this.log(`attributeChangedCallback name:${name}, old:${oldValue}, new:${newValue}`);
-        this.render();
+		this.templateName = templateName;
 
-    }
+		const templateElement = document.querySelector(
+			"#" + this.templateName
+		) as HTMLTemplateElement;
 
-    render() {
-        if (!this.templateName) {
-            console.error("Tried to render without a template name");
-            return
-        }
+		// Clone the template and
+		const shadow = this.shadowRoot;
+		shadow?.replaceChildren(templateElement.content.cloneNode(true));
 
-        const event = JSON.parse(this.getAttribute("hn-event-data") || "{}");
+		this.hydrateLinks();
 
-        if (!event) {
-            console.error("Tried to render without event data");
-            return
-        }
+		this.render();
+	}
 
-        let content = processContent(event.content);
+	async attributeChangedCallback(
+		name: string,
+		oldValue: unknown,
+		newValue: unknown
+	) {
+		this.log(
+			`attributeChangedCallback name:${name}, old:${oldValue}, new:${newValue}`
+		);
+		if (newValue && name === "hn-template" && newValue !== oldValue) {
+			await this.swapForNewTemplate();
+			this.render();
+		}
+	}
 
-        let shadowRoot = this.shadowRoot;
+	render() {
+		if (!this.templateName) {
+			console.error("Tried to render without a template name");
+			return;
+		}
 
-        if (!shadowRoot) {
-            const templateElement = document.querySelector("#" + this.templateName) as HTMLTemplateElement;
+		const event = JSON.parse(this.getAttribute("hn-event-data") || "{}");
 
-            // Clone the template and add it to the dom
-            const newShadow = this.attachShadow({ mode: "open" });
-            newShadow.appendChild(templateElement.content.cloneNode(true));
-            shadowRoot = newShadow;
-        }
+		if (!event) {
+			console.error("Tried to render without event data");
+			return;
+		}
 
-        // Find all the named slots
-        const slots = shadowRoot.querySelectorAll("slot");
+		let content = processContent(event.content);
 
-        console.log("hydrating slots", event);
-        slots.forEach((s) => {
-            const field = s.getAttribute("name")!;
-            const fieldParts = field.split(".");
+		let shadowRoot = this.shadowRoot;
 
-            if (fieldParts.length === 1) {
-                s.innerHTML = event[field];
-            }
+		if (!shadowRoot) {
+			const templateElement = document.querySelector(
+				"#" + this.templateName
+			) as HTMLTemplateElement;
 
-            if (fieldParts.length === 2) {
-                s.innerHTML = content[fieldParts[1]];
-            }
-        });
-    }
+			// Clone the template and add it to the dom
+			const newShadow = this.attachShadow({ mode: "open" });
+			newShadow.appendChild(templateElement.content.cloneNode(true));
+			shadowRoot = newShadow;
+		}
 
-    async fetchEvent(id: string) {
-        const eventData = await ndk.fetchEvent({
-            ids: [id],
-        });
+		// Find all the named slots
+		const slots = shadowRoot.querySelectorAll("slot");
 
-        console.log(eventData?.rawEvent());
+		console.log("hydrating slots", event);
+		slots.forEach((s) => {
+			const field = s.getAttribute("name")!;
+			const fieldParts = field.split(".");
 
-        if (eventData?.rawEvent()) {
-            this.setAttribute("hn-event-data", JSON.stringify(eventData.rawEvent()));
-            // this.eventData = JSON.stringify(eventData.rawEvent());
-        }
+			if (!field || !event || !content) {
+				console.error("No field, event, or content found");
+				// return;
+			} else {
+				// If the field isn't in the event or the content we need to look in the tags
+				if (!event[field] && !content[fieldParts[1]]) {
+					console.error(
+						`No field found for ${field}, looking in tags`
+					);
 
-        this.render();
-    }
+					const tags = event.tags;
+					console.log("tags", tags);
+					// Tags are formatted as an array of ["key", "value"] arrays
+					// We need to find the tag with the key we're looking for
+					const tag = tags.find((t: string[]) => t[0] === field);
+					if (tag) {
+						s.innerHTML = tag[1];
+					}
+				} else {
+					if (fieldParts.length === 1) {
+						s.innerHTML = event[field];
+					}
 
-    async fetchTemplate(npub: string, templateName: string) {
-        const hexpub = pubkeyToHexpub(npub);
-        const events = await ndk.fetchEvents({
-            kinds: [32616],
-            authors: [
-                hexpub
-            ],
-            "#d": [templateName],
-        });
+					if (fieldParts.length === 2) {
+						s.innerHTML = content[fieldParts[1]];
+					}
+				}
+			}
+		});
 
-        if (events.size === 0) {
-            console.error("No events found for this template");
-            return;
-        }
+		// TODO: clean this up!
+		this.hydrateLinks();
 
-        const event = events.values().next().value as NostrEvent;
+		hydrateSpecialElements(shadowRoot, "hn-a", event, content);
+		hydrateSpecialElements(shadowRoot, "hn-time", event, content);
+		hydrateSpecialElements(shadowRoot, "hn-img", event, content);
+		hydrateSpecialElements(shadowRoot, "hn-markdown", event, content);
+	}
 
-        return event.content;
-    }
+	hydrateLinks() {
+		let shadowRoot = this.shadowRoot;
+		// find all the a tags
+		const links = shadowRoot?.querySelectorAll("a");
+		if (links) {
+			links.forEach((l) => {
+				const originalHref = l.getAttribute("href");
+				if (!originalHref) {
+					console.error("No href found for link");
+				} else {
+					// l.style.backgroundColor = "pink";
+					// l.href = `#`;
+					l.onclick = (e) => {
+						e.preventDefault();
+						console.log("clicked", originalHref);
+						// this.setAttribute("hn-template", originalHref);
+						document
+							.createElement("hn-element")
+							.setAttribute("hn-template", originalHref);
+						const ele = document.createElement("hn-element");
+						ele.setAttribute("hn-template", originalHref);
+						this.shadowRoot?.replaceChildren(ele);
+					};
+				}
+			});
+		}
+	}
+
+	async fetchEvent(id: string) {
+		const eventData = await ndk.fetchEvent({
+			ids: [id],
+		});
+
+		console.log(eventData?.rawEvent());
+
+		if (eventData?.rawEvent()) {
+			this.setAttribute(
+				"hn-event-data",
+				JSON.stringify(eventData.rawEvent())
+			);
+			// this.eventData = JSON.stringify(eventData.rawEvent());
+		}
+
+		this.render();
+	}
+
+	async fetchTemplate(npub: string, templateName: string) {
+		const hexpub = pubkeyToHexpub(npub);
+		const events = await ndk.fetchEvents({
+			kinds: [32616],
+			authors: [hexpub],
+			"#d": [templateName],
+		});
+
+		if (events.size === 0) {
+			console.error("No events found for this template");
+			return;
+		}
+
+		const event = events.values().next().value as NostrEvent;
+
+		return event.content;
+	}
 }
 
 class HyperNoteQueryElement extends HTMLElement {
-    // LOGGING
-    // @ts-expect-error
-    log(...args) {
-        console.log(this.nodeName, `hn-query:${this.getAttribute("hn-query")}`, "\t\t\t", ...args);
-    }
+	// LOGGING
+	// @ts-expect-error
+	log(...args) {
+		console.log(
+			this.nodeName,
+			`hn-query:${this.getAttribute("hn-query")}`,
+			"\t\t\t",
+			...args
+		);
+	}
 
-    static observedAttributes = ["kind", "authors", "limit"];
+	static observedAttributes = ["kind", "authors", "limit"];
 
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 
-    async connectedCallback() {
-        console.log("hn-query connectedCallback");
-        await this.fetchQuery();
-    }
+	async connectedCallback() {
+		console.log("hn-query connectedCallback");
+		await this.fetchQuery();
+	}
 
-    async fetchQuery() {
-        const kind = this.getAttribute("kind");
-        const authors = this.getAttribute("authors");
-        const limit = this.getAttribute("limit");
+	async fetchQuery() {
+		const kind = this.getAttribute("kind");
+		const authors = this.getAttribute("authors");
+		const limit = this.getAttribute("limit");
+		// const d = this.getAttribute("d");
 
-        // Kind
-        if (!kind || isNaN(Number(kind))) {
-            console.error("Invalid kind provided");
-            return;
-        }
+		// Kind
+		if (!kind || isNaN(Number(kind))) {
+			console.error("Invalid kind provided");
+			return;
+		}
 
-        let parsedKind = Number(kind);
+		let parsedKind = Number(kind);
 
-        // Authors
-        let authorsArray = [];
+		// Authors
+		let authorsArray = [];
 
-        if (authors?.startsWith("[") && authors?.endsWith("]")) {
-            console.log("authors is an array");
-            authorsArray = JSON.parse(authors);
-        } else {
-            authorsArray.push(authors);
-        }
+		if (authors?.startsWith("[") && authors?.endsWith("]")) {
+			console.log("authors is an array");
+			authorsArray = JSON.parse(authors);
+		} else {
+			authorsArray.push(authors);
+		}
 
-        // Convert all the authors into hexpubs
-        authorsArray = authorsArray.map((a: string) => {
-            return pubkeyToHexpub(a);
-        });
+		// Convert all the authors into hexpubs
+		authorsArray = authorsArray.map((a: string) => {
+			return pubkeyToHexpub(a);
+		});
 
-        // Limit (defaults to 1)
-        let parsedLimit = 1;
+		// Limit (defaults to 1)
+		let parsedLimit = 1;
 
-        if (limit && !isNaN(Number(limit))) {
-            parsedLimit = Number(limit);
-        }
+		if (limit && !isNaN(Number(limit))) {
+			parsedLimit = Number(limit);
+		}
 
-        const query = {
-            kinds: [parsedKind],
-            authors: authorsArray,
-            limit: parsedLimit,
-        };
+		const query = {
+			kinds: [parsedKind],
+			authors: authorsArray,
+			limit: parsedLimit,
+		};
 
-        let events = [];
+		// if (d && d.length > 0) {
+		//     query["#d"] = [d];
+		// }
 
-        if (parsedLimit === 1) {
-            const event = await ndk.fetchEvent({ kinds: query.kinds, authors: query.authors });
-            events = [event];
-        } else {
-            const eventsSet = await ndk.fetchEvents(query);
-            events = Array.from(eventsSet);
-        }
+		let events: NDKEvent[] = [] as NDKEvent[];
 
-        console.log(events);
+		try {
+			if (parsedLimit === 1) {
+				const event = await ndk.fetchEvent({
+					kinds: query.kinds,
+					authors: query.authors,
+				});
+				if (!event) {
+					console.error("No event found for this query: ", query);
+					return;
+				}
+				events.push(event);
+			} else {
+				const eventsSet = await ndk.fetchEvents(query);
+				if (eventsSet.size === 0) {
+					console.error("No events found for this query: ", query);
+					return;
+				}
+				events = Array.from(eventsSet);
+			}
+		} catch (e) {
+			console.error("Error fetching events", e);
+		}
 
-        if (events.length === 0) {
-            console.error("No events found for this query: ", query);
-            return;
-        }
+		console.log("events", events);
 
-        // See if we have an hn-element to hydrate
-        const hnElement = this.querySelector("hn-element");
+		// See if we have an hn-element to hydrate
+		const hnElement = this.querySelector("hn-element");
 
-        if (hnElement) {
-            for (const event of events) {
-                // Create a clone of the hn-element
-                const ele = hnElement.cloneNode(true) as HyperNoteElement;
+		// TODO: this is really inefficient
+		// Ideally we're cloning the template and hydrating before adding it to the dom
+		if (hnElement) {
+			// Get the template metadata we need
+			const templateId = hnElement.getAttribute("hn-template");
 
-                // Append the clone to the DOM first
-                this.appendChild(ele);
+			if (!templateId) {
+				console.error("No template provided for hn-element");
+				return;
+			}
 
-                // Now the connectedCallback would have been fired
+			const [_npub, templateName] = parseTemplateString(templateId);
 
-                // Set attribute and render
-                const data = event.rawEvent();
-                console.log("hydrating hn-element with data", data);
-                ele.setAttribute("hn-event-data", JSON.stringify(data));
-                ele.render();
-            }
-            // for (const _ of events) {
-            //     // create a clone of the hn-element
-            //     const ele = hnElement.cloneNode(true) as HyperNoteElement;
-            //     this.appendChild(ele);
-            // }
+			// Delete the original hn-element so we can replace it with the hydrated version
+			hnElement.remove();
 
-            // // Find all the hn-elements
-            // const hnElements = this.querySelectorAll("hn-element");
-            // for (const hnElement of hnElements) {
-            //     const ele = hnElement as HyperNoteElement;
-            //     console.log("hydrating hn-element", ele);
-            //     const data = events.values().next().value.rawEvent();
-            //     console.log("hydrating hn-element with data", data);
-            //     ele.setAttribute("hn-event-data", JSON.stringify(data));
-            //     ele.render();
-            // }
-        } else {
-            // For each event put it in the dom inside a <pre> tag
-            events.forEach((event) => {
-                const pre = document.createElement("pre");
+			for (const event of events) {
+				// Get the template name from the hn-element
+				const ele = document.createElement(
+					"hn-element"
+				) as HyperNoteElement;
+				ele.setAttribute("hn-template", templateId);
 
-                // Add a style to the pre tag so it wraps
-                pre.style.whiteSpace = "pre-wrap";
-                pre.style.wordBreak = "break-word";
+				// TODO dumb that I'm doing this here but it fixed it?
+				ele.templateName = templateName;
 
-                pre.innerText = JSON.stringify(event?.rawEvent(), null, 2);
-                this.appendChild(pre);
-            });
-        }
+				// TODO: how could this ever be null?
+				const data = event?.rawEvent();
+				ele.setAttribute("hn-event-data", JSON.stringify(data));
 
+				this.appendChild(ele);
+			}
+			return;
+		}
 
-    }
+		// If we don't have an hn-element, look to see if we have any children
+		const children = this.children;
 
+		if (children.length > 0) {
+			console.log("We have children");
+			// If we have children, we're going to wrap them in a new hn-element
+			// TODO: not handling multiple events here really
+
+			const existingChildren = Array.from(children);
+
+			// Delete the original children so we can replace it with the hydrated version
+			existingChildren.forEach((c) => {
+				c.remove();
+			});
+
+			for (const event of events) {
+				const ele = document.createElement(
+					"hn-element"
+				) as HyperNoteElement;
+				ele.setAttribute("hn-template", "none");
+				ele.templateName = "none";
+
+				const data = event?.rawEvent();
+				ele.setAttribute("hn-event-data", JSON.stringify(data));
+
+				this.appendChild(ele);
+			}
+			return;
+		}
+
+		// If we have no children just put events in the dom inside a <pre> tag
+		events.forEach((event) => {
+			const pre = document.createElement("pre");
+
+			// Add a style to the pre tag so it wraps
+			pre.style.whiteSpace = "pre-wrap";
+			pre.style.wordBreak = "break-word";
+
+			pre.innerText = JSON.stringify(event?.rawEvent(), null, 2);
+			this.appendChild(pre);
+		});
+	}
 }
 
-// First we register the hn-elements
-// Then we register the hn-query parent elements that will hydrate those elements
-customElements.define("hn-query", HyperNoteQueryElement)
+class SpecialElement extends HTMLElement {
+	name: string = "base-special-element";
+	// LOGGING
+	// @ts-expect-error
+
+	log(...args) {
+		console.log(
+			this.nodeName,
+			`${this.name}:${this.getAttribute(this.name)}`,
+			"\t\t\t",
+			...args
+		);
+	}
+
+	static get observedAttributes() {
+		return ["value"];
+	}
+
+	constructor() {
+		super();
+	}
+
+	attributeChangedCallback(
+		name: string,
+		oldValue: unknown,
+		newValue: unknown
+	) {
+		this.log(
+			`attributeChangedCallback name:${name}, old:${oldValue}, new:${newValue}`
+		);
+		this.render();
+	}
+
+	connectedCallback() {
+		console.log(`${this.name} connectedCallback`);
+		this.render();
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+		this.innerHTML = /* html */ `
+            <pre>${this.name}: ${value}</pre>
+            `;
+	}
+}
+
+class HyperNoteAElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-a";
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+		this.innerHTML = /* html */ `
+            <a href="https://njump.me/${value}" target="_blank">${value}</a>
+            `;
+	}
+}
+
+class HyperNoteTimeElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-time";
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+
+		if (!value) {
+			console.error("No value provided for hn-time");
+			return;
+		}
+
+		if (isNaN(Number(value))) {
+			console.error(
+				"Invalid value provided for hn-time. Should be a unix timestamp"
+			);
+			return;
+		}
+
+		const date = new Date(Number(value) * 1000);
+
+		this.innerHTML = /* html */ `
+            <time datetime="${date.toISOString()}">${date.toLocaleString()}</time>
+            `;
+	}
+}
+
+class HyperNoteImgElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-img";
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+
+		if (!value) {
+			console.error("No value provided for hn-img");
+			return;
+		}
+
+		console.log("about to render image");
+
+		this.innerHTML = /* html */ `
+            <img src="${value}" />
+            `;
+	}
+}
+
+class HyperNoteMarkdownElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-markdown";
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+
+		if (!value) {
+			console.error("No value provided for hn-markdown");
+			return;
+		}
+
+		this.innerHTML = /* html */ `
+            <div>${markdownToHtml(value)}</div>
+            `;
+	}
+}
+
+// First we register the special components
+customElements.define("hn-a", HyperNoteAElement);
+customElements.define("hn-time", HyperNoteTimeElement);
+customElements.define("hn-img", HyperNoteImgElement);
+customElements.define("hn-markdown", HyperNoteMarkdownElement);
+
+// Then we register the hn-elements
 customElements.define("hn-element", HyperNoteElement);
+// Then we register the hn-query parent elements that will hydrate those elements
+customElements.define("hn-query", HyperNoteQueryElement);
 
-// 
-// 
+//
+//
 // Utility functions
-// 
-// 
+//
+//
 function fromHTML(html: string) {
-    // Process the HTML string.
-    html = html.trim();
-    if (!html) return null;
+	// Process the HTML string.
+	html = html.trim();
+	if (!html) return null;
 
-    // Then set up a new template element.
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const result = template.content.firstChild;
+	// Then set up a new template element.
+	const template = document.createElement("template");
+	template.innerHTML = html;
+	const result = template.content.firstChild;
 
-    return result as HTMLTemplateElement;
+	return result as HTMLTemplateElement;
 }
 
-function parseTemplateString(templateId: string | undefined | null): [string, string] {
-    // If there's no template, we can't do anything
-    if (!templateId) {
-        console.error("No template provided for hn-element");
-        return ["", ""];
-    }
+function parseTemplateString(
+	templateId: string | undefined | null
+): [string, string] {
+	// If there's no template, we can't do anything
+	if (!templateId) {
+		console.error("No template provided for hn-element");
+		return ["", ""];
+	}
 
-    // Parse the template string. It should be formatted as:
-    // `nostr:${npub}/${templateName}`
-    const [n, templateString] = templateId.split(":");
-    if (n !== "nostr") {
-        console.error("Invalid template string. Should start with nostr:");
-    }
+	// Parse the template string. It should be formatted as:
+	// `nostr:${npub}/${templateName}`
+	const [n, templateString] = templateId.split(":");
+	if (n !== "nostr") {
+		console.error("Invalid template string. Should start with nostr:");
+	}
 
-    const [npub, templateName] = templateString.split("/");
-    return [npub, templateName];
+	const [npub, templateName] = templateString.split("/");
+	return [npub, templateName];
 }
 
 function processContent(content?: string) {
-    if (!content) {
-        return content;
-    }
-    try {
-        return JSON.parse(content);
-    } catch (e) {
-        return content;
-    }
+	if (!content) {
+		return content;
+	}
+	try {
+		return JSON.parse(content);
+	} catch (e) {
+		return content;
+	}
 }
-
 
 function pubkeyToHexpub(pubkey: string): string {
-    // Only decode if it's prefixed
-    for (const prefix of prefixes) {
-        if (pubkey.startsWith(prefix)) {
-            const decoded = nip19.decode(pubkey).data.toString();
-            return decoded;
-        }
-    }
-    return pubkey
+	// Only decode if it's prefixed
+	for (const prefix of prefixes) {
+		if (pubkey.startsWith(prefix)) {
+			const decoded = nip19.decode(pubkey).data.toString();
+			return decoded;
+		}
+	}
+	return pubkey;
 }
 
+function hydrateSpecialElements(
+	shadowRoot: ShadowRoot,
+	selector: string,
+	event: NostrEvent,
+	content: any
+) {
+	const elements = shadowRoot.querySelectorAll(selector);
+	elements.forEach((element) => {
+		const field = element.getAttribute("value");
+
+		if (!field) {
+			console.error(`No value provided for ${selector}`);
+			return;
+		}
+
+		if (!content) {
+			console.error(`No content provided for ${selector}`);
+			return;
+		}
+
+		const fieldParts = field.split(".");
+
+		// If the field isn't in the event or the content we need to look in the tags
+		if (!event[field] && !content[fieldParts[1]]) {
+			console.warn(`No field found for ${field}, looking in tags`);
+
+			const tags = event.tags;
+			console.log("tags", tags);
+			// Tags are formatted as an array of ["key", "value"] arrays
+			// We need to find the tag with the key we're looking for
+			const tag = tags.find((t: string[]) => t[0] === field);
+			if (tag) {
+				element.setAttribute("value", tag[1]);
+			}
+		} else {
+			if (fieldParts.length === 1) {
+				// s.innerHTML = event[field];
+				element.setAttribute("value", event[field]);
+			}
+
+			if (fieldParts.length === 2) {
+				element.setAttribute("value", content[fieldParts[1]]);
+				// s.innerHTML = content[fieldParts[1]];
+			}
+		}
+
+		// // assuming content.key
+		// // TODO: make this more robust
+		// if (valueKey.includes(".")) {
+		// 	const [_, key] = valueKey.split(".");
+		// 	const value = content[key];
+		// 	if (!value) {
+		// 		console.error(`No value found for ${selector} ${valueKey}`);
+		// 		return;
+		// 	}
+		// 	element.setAttribute("value", value.toString());
+		// 	return;
+		// } else {
+		// 	const value = event[valueKey];
+		// 	if (!value) {
+		// 		console.error(`No value found for ${selector} ${valueKey}`);
+		// 		return;
+		// 	}
+		// 	element.setAttribute("value", value.toString());
+		// }
+	});
+}
+
+// https://github.com/nostr-dev-kit/ndk/blob/master/ndk-svelte-components/src/lib/utils/markdown.ts
+function markdownToHtml(content: string): string {
+	marked.use(gfmHeadingId());
+
+	return sanitizeHtml(
+		// eslint-disable-next-line no-misleading-character-class
+		marked.parse(
+			content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
+		)
+	);
+}
+
+// const query = await ndk.fetchEvents({
+//     kinds: [30023],
+//     authors: ["0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"],
+// });
+
+// console.log("query test", query);
+
 const query = await ndk.fetchEvents({
-    kinds: [0],
-    authors: ["0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"],
+	kinds: [30023],
+	authors: [
+		"fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52",
+	],
+	// limit: 1
+	// "#d": ["nsecBunker-0-10-z9l8tw"]
 });
 
 console.log("query test", query);

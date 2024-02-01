@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+		<link rel="stylesheet" href="/src/style.css" />
+		<style></style>
+	</head>
+	<body>
+		<template id="sec-demo-slide-1">
+			<style>
+				* {
+					cursor: url("pointer.png"), auto;
+				}
+				button::hover {
+					cursor: url("pointer.png"), auto;
+				}
+				a::hover {
+					cursor: url("pointer.png"), auto;
+				}
+
+				::slotted(iframe),
+				::slotted(img) {
+					width: 100%;
+					height: 100%;
+				}
+
+				img {
+					image-rendering: pixelated;
+				}
+
+				::slotted(img) {
+					object-fit: cover;
+				}
+
+				#slide {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					grid-template-rows: 1fr;
+					grid-template-areas: "left right";
+					height: calc(100vh - 1rem);
+					width: calc(100vw - 1rem);
+				}
+
+				#left {
+					padding: 1rem;
+					display: grid;
+					grid-template-rows: 1fr auto 1fr;
+				}
+
+				nav {
+					align-self: end;
+					display: flex;
+					gap: 1rem;
+				}
+
+				button {
+					background: none;
+					border: none;
+				}
+			</style>
+			<section id="slide">
+				<div id="left">
+					<div>empty</div>
+					<div>
+						<slot name="text-content"></slot>
+					</div>
+					<nav>
+						<slot name="nav"></slot>
+					</nav>
+				</div>
+				<div id="right">
+					<slot name="image-content"> </slot>
+				</div>
+			</section>
+		</template>
+		<sec-slide-demo-1></sec-slide-demo-1>
+		<!-- <hn-element
+			hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/sec-demo-slide-1"
+		></hn-element> -->
+	</body>
+	<script>
+		const template = document.getElementById("sec-demo-slide-1");
+		let templateContent = template.content;
+		document.body.appendChild(templateContent.cloneNode(true));
+	</script>
+	<script type="module" src="/src/designdemo.ts"></script>
+</html>

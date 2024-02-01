@@ -89,7 +89,7 @@ const kind32616Events = await ndk.fetchEvents({
 	authors: [
 		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
 	],
-	"#d": ["my-template"],
+	// "#d": [],
 	// tags: [["d", "test9"]]
 });
 
