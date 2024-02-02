@@ -1,9 +1,11 @@
-import NDK, { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+// nostr stuff
+import NDK, { NDKEvent, NDKNip07Signer, NostrEvent } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 
 // markdown stuff
 import { marked } from "marked";
 import { gfmHeadingId } from "marked-gfm-heading-id";
+// TODO LOL
 import sanitizeHtml from "sanitize-html";
 
 const prefixes = [
@@ -212,17 +214,20 @@ class HyperNoteElement extends HTMLElement {
 					// We need to find the tag with the key we're looking for
 					const tag = tags.find((t: string[]) => t[0] === field);
 					if (tag) {
-						s.innerHTML = tag[1];
+						s.innerText = tag[1];
 					}
 				} else {
 					if (fieldParts.length === 1) {
-						s.innerHTML = event[field];
+						s.innerText = event[field];
 					}
 
 					if (fieldParts.length === 2) {
-						s.innerHTML = content[fieldParts[1]];
+						s.innerText = content[fieldParts[1]];
 					}
 				}
+
+				// Let's see what s looks like now
+				console.log("hydrated slot element", s);
 			}
 		});
 
@@ -371,6 +376,7 @@ class HyperNoteQueryElement extends HTMLElement {
 		const limit = this.getAttribute("limit");
 		const event = this.getAttribute("event");
 		const d = this.getAttribute("d");
+		const a = this.getAttribute("a");
 
 		console.log(
 			`hn-query... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}`
@@ -433,6 +439,7 @@ class HyperNoteQueryElement extends HTMLElement {
 				authors?: string[];
 				limit?: number;
 				"#d"?: string[];
+				"#a"?: string[];
 			} = {};
 
 			if (parsedKind !== undefined && !isNaN(parsedKind)) {
@@ -447,6 +454,10 @@ class HyperNoteQueryElement extends HTMLElement {
 				query["#d"] = [d];
 			}
 
+			if (a) {
+				query["#a"] = [a];
+			}
+
 			try {
 				if (parsedLimit === 1) {
 					console.log("fetching single event with query: ", query);
@@ -458,7 +469,9 @@ class HyperNoteQueryElement extends HTMLElement {
 					events.push(event);
 				} else {
 					query.limit = parsedLimit;
-					const eventsSet = await ndk.fetchEvents(query);
+					const eventsSet = await ndk.fetchEvents(query, {
+						closeOnEose: true,
+					});
 					if (eventsSet.size === 0) {
 						console.error(
 							"No events found for this query: ",
@@ -466,7 +479,10 @@ class HyperNoteQueryElement extends HTMLElement {
 						);
 						return;
 					}
-					events = Array.from(eventsSet);
+					eventsSet.forEach((e) => {
+						events.push(e);
+					});
+					// events = Array.from(eventsSet);
 				}
 			} catch (e) {
 				console.error("Error fetching events", e);
@@ -491,8 +507,11 @@ class HyperNoteQueryElement extends HTMLElement {
 
 			const [_npub, templateName] = parseTemplateString(templateId);
 
-			// Delete the original hn-element so we can replace it with the hydrated version
-			hnElement.remove();
+			// Delete all the original hn-elements so we can replace it with the hydrated version
+			const hnElements = this.querySelectorAll("hn-element");
+			hnElements.forEach((e) => {
+				e.remove();
+			});
 
 			for (const event of events) {
 				// Get the template name from the hn-element
@@ -552,7 +571,7 @@ class HyperNoteQueryElement extends HTMLElement {
 			pre.style.wordBreak = "break-word";
 
 			pre.innerText = JSON.stringify(event?.rawEvent(), null, 2);
-			this.replaceChildren(pre);
+			this.appendChild(pre);
 		});
 	}
 }
@@ -611,9 +630,31 @@ class HyperNoteAElement extends SpecialElement {
 
 	render() {
 		const value = this.getAttribute("value");
-		this.innerHTML = /* html */ `
-            <a href="https://njump.me/${value}" target="_blank">${value}</a>
-            `;
+
+		// See if we have an inner a tag already
+		const innerA = this.querySelector("a");
+		if (innerA) {
+			// If we do, we'll just replace the href
+			innerA.href = `https://njump.me/${value}`;
+			return;
+		} else {
+			// If we don't, we'll create a new a tag
+			const newEle = document.createElement("a");
+			newEle.href = `https://njump.me/${value}`;
+			newEle.innerHTML = this.innerHTML;
+			this.replaceChildren(newEle);
+		}
+		// const innerText = this.innerText;
+		// console.log("rendering hn-a", value, innerText);
+		// const newEle = document.createElement("a");
+		// newEle.href = `https://njump.me/${value}`;
+		// newEle.target = "_blank";
+		// newEle.innerText = innerText;
+		// this.replaceChildren(newEle);
+
+		// this.innerHTML = /* html */ `
+		//     <a href="https://njump.me/${value}" target="_blank">${innerHTML}</a>
+		//     `;
 	}
 }
 
@@ -688,11 +729,67 @@ class HyperNoteMarkdownElement extends SpecialElement {
 	}
 }
 
+class HyperNoteFormElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-form";
+	}
+
+	render() {
+		// Create a new form element with the same inner html
+		const newForm = document.createElement("form");
+		newForm.innerHTML = this.innerHTML;
+
+		newForm?.addEventListener("submit", async (e) => {
+			e.preventDefault();
+
+			// get the submit data
+			const formData = new FormData(newForm as HTMLFormElement);
+			console.log(Object.fromEntries(formData));
+
+			if (formData.get("content") === "") {
+				alert("Please enter some content");
+				return;
+			}
+
+			// TODO: don't hardcode the kind
+			const nostrEvent = new NDKEvent(ndk);
+			nostrEvent.kind = 1;
+			nostrEvent.content = formData.get("content") as string;
+
+			const p = formData.get("p") as string;
+			if (p) {
+				nostrEvent.tags.push(["p", p]);
+			}
+
+			const a = formData.get("a") as string;
+			const aParsed = JSON.parse(a);
+			console.log("aParsed", aParsed);
+			if (aParsed && aParsed.length > 0 && Array.isArray(aParsed)) {
+				nostrEvent.tags.push(["a", ...aParsed]);
+			}
+
+			console.log("nostrEvent", nostrEvent.rawEvent());
+
+			await login();
+
+			await nostrEvent.publish();
+
+			window.location.reload();
+		});
+
+		console.log("rendering form", newForm);
+
+		this.replaceChildren(newForm);
+	}
+}
+
 // First we register the special components
 customElements.define("hn-a", HyperNoteAElement);
 customElements.define("hn-time", HyperNoteTimeElement);
 customElements.define("hn-img", HyperNoteImgElement);
 customElements.define("hn-markdown", HyperNoteMarkdownElement);
+customElements.define("hn-form", HyperNoteFormElement);
 
 // Then we register the hn-elements
 customElements.define("hn-element", HyperNoteElement);
@@ -795,13 +892,11 @@ function hydrateSpecialElements(
 			}
 		} else {
 			if (fieldParts.length === 1) {
-				// s.innerHTML = event[field];
 				element.setAttribute("value", event[field]);
 			}
 
 			if (fieldParts.length === 2) {
 				element.setAttribute("value", content[fieldParts[1]]);
-				// s.innerHTML = content[fieldParts[1]];
 			}
 		}
 
@@ -833,10 +928,30 @@ function markdownToHtml(content: string): string {
 
 	// TODO: lol sanitize html again
 
-	// eslint-disable-next-line no-misleading-character-class
 	return marked.parse(
 		content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
 	);
+}
+
+export async function loginWithNip07() {
+	try {
+		const signer = new NDKNip07Signer();
+		return signer.user().then(async (user) => {
+			if (user.npub) {
+				return { user: user, npub: user.npub, signer: signer };
+			}
+		});
+	} catch (e) {
+		throw e;
+	}
+}
+
+export async function login() {
+	// const nsec = prompt("Enter your nsec key");
+	// const user = nsec
+	// const user = nsec ? await loginWithSecret(nsec) : undefined;
+	const user = await loginWithNip07();
+	ndk.signer = user?.signer;
 }
 
 // const query = await ndk.fetchEvents({
@@ -848,8 +963,11 @@ function markdownToHtml(content: string): string {
 
 const query = await ndk.fetchEvents({
 	kinds: [1],
-	authors: [
-		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+	// authors: [
+	// 	"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+	// ],
+	"#a": [
+		"30023:0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33:home",
 	],
 	// limit: 1
 	// "#d": ["nsecBunker-0-10-z9l8tw"]

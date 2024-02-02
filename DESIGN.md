@@ -43,6 +43,30 @@ a template that displays a kind 0 profile
 </template>
 ```
 
+```html
+<template id="profile-mini" hn-kind="0">
+	<style>
+		.flex {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+		img {
+			width: 2rem;
+			height: 2rem;
+			border-radius: 2rem;
+			object-fit: cover;
+		}
+	</style>
+	<div class="flex">
+		<hn-img value="content.picture"></hn-img>
+		<h2>
+			<hn-a value="pubkey"><slot name="content.name">No Name</slot></hn-a>
+		</h2>
+	</div>
+</template>
+```
+
 a template that displays a kind 1 note
 
 ```html
@@ -61,7 +85,29 @@ a template that displays a kind 1 note
 	</style>
 	<div id="note">
 		<p><slot name="content">Note content goes here</span></p>
-		<p class="mono"><strong>ID:</strong><hn-a value="id"></hn-a></p>
+		<p class="mono"><strong>ID:</strong><hn-a value="id"><slot name="id"></slot></hn-a></p>
+		<p class="mono"><strong>DATE:</strong><hn-time value="created_at"></hn-time></p>
+	</div>
+</template>
+```
+
+```html
+<template id="note-with-profile">
+	<style>
+		#note {
+			padding: 0.5rem;
+			background: rgba(0, 0, 0, 0.05);
+		}
+		p {
+			word-break: break-word;
+		}
+		.mono {
+			font-family: monospace;
+		}
+	</style>
+	<div id="note">
+		<p><slot name="content">Note content goes here</span></p>
+		<p class="mono"><strong>ID:</strong><hn-a value="id"><slot name="id"></slot></hn-a></p>
 		<p class="mono"><strong>DATE:</strong><hn-time value="created_at"></hn-time></p>
 	</div>
 </template>

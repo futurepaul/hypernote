@@ -1,0 +1,77 @@
+<template id="my-guestbook">
+	<style>
+		* {
+			color: white;
+		}
+		section {
+			width: 100vw;
+			height: 100vh;
+			background-image: url("https://cdn.satellite.earth/28cdf69ca50e9a15d303e9408e1ee616ada90fcac12cc5db7daef9464adfe453.gif");
+			overflow-y: scroll;
+			padding: 1rem;
+		}
+
+		img {
+			max-height: 50%;
+			max-width: 75%;
+			object-fit: contain;
+		}
+
+		form {
+			display: flex;
+			flex-direction: column;
+			color: black;
+			max-width: 20rem;
+		}
+
+		button,
+		input,
+		textarea {
+			color: black;
+		}
+	</style>
+	<section>
+		<hn-img value="image"></hn-img>
+		<h1><slot name="title"></slot></h1>
+		<hn-markdown value="content"></hn-markdown>
+		<hn-a value="pubkey">Find Me On The Nostr</hn-a>
+		<hn-query
+			kind="0"
+			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+		>
+			<hn-element
+				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/profile-basic"
+			></hn-element>
+		</hn-query>
+		<h2><slot name="summary"></slot></h2>
+		<hn-form id="publish">
+			<textarea
+				placeholder="sign my guestbook!"
+				name="content"
+				id="content"
+				cols="30"
+				rows="3"
+			></textarea>
+			<input
+				type="hidden"
+				name="p"
+				value="0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+			/>
+			<input
+				type="hidden"
+				name="a"
+				value='["30023:0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33:home","","root"]'
+			/>
+			<button type="submit">Sign The Guestbook</button>
+		</hn-form>
+		<hn-query
+			kind="1"
+			a="30023:0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33:home"
+			limit="10"
+		>
+			<hn-element
+				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/note-basic"
+			></hn-element>
+		</hn-query>
+	</section>
+</template>

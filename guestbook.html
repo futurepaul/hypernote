@@ -4,22 +4,24 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Hypernote</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+		</style>
 	</head>
 	<body>
 		<hn-query
-			kind="0"
-			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
-		>
-			<hn-element
-				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/profile-basic"
-			></hn-element>
-		</hn-query>
-		<!-- <hn-query
 			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
 			d="home"
 			kind="30023"
 		>
-		</hn-query> -->
+			<hn-element
+				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-guestbook"
+			></hn-element>
+		</hn-query>
 	</body>
 	<script type="module" src="/src/designdemo.ts"></script>
 </html>
