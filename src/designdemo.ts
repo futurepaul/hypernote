@@ -20,8 +20,8 @@ const ndk = new NDK({
 	explicitRelayUrls: [
 		"wss://pablof7z.nostr1.com",
 		"wss://nostr-pub.wellorder.net",
-		"wss://relay.damus.io",
-		"wss://relay.primal.net",
+		"wss://nos.lol",
+		"wss://offchain.pub",
 	],
 	enableOutboxModel: false,
 });
@@ -155,6 +155,9 @@ class HyperNoteElement extends HTMLElement {
 			await this.swapForNewTemplate();
 			this.render();
 		}
+		if (newValue && name === "hn-event-data" && newValue !== oldValue) {
+			this.render();
+		}
 	}
 
 	render() {
@@ -233,6 +236,7 @@ class HyperNoteElement extends HTMLElement {
 	}
 
 	hydrateLinks() {
+		console.log("hydrating links");
 		let shadowRoot = this.shadowRoot;
 		// find all the a tags
 		const links = shadowRoot?.querySelectorAll("a");
@@ -244,16 +248,51 @@ class HyperNoteElement extends HTMLElement {
 				} else {
 					// l.style.backgroundColor = "pink";
 					// l.href = `#`;
-					l.onclick = (e) => {
+					l.onclick = async (e) => {
 						e.preventDefault();
 						console.log("clicked", originalHref);
 						// this.setAttribute("hn-template", originalHref);
-						document
-							.createElement("hn-element")
-							.setAttribute("hn-template", originalHref);
-						const ele = document.createElement("hn-element");
-						ele.setAttribute("hn-template", originalHref);
-						this.shadowRoot?.replaceChildren(ele);
+
+						// fetch the event. if it's a kind 32616, we'll use it as the new template
+						// if it's not, we'll use it as the new event data for the current template
+
+						// the url looks like this: nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/single-slide
+
+						// we need to parse the url and fetch the event
+						const [npub, templateName] =
+							parseTemplateString(originalHref);
+						const hexpub = pubkeyToHexpub(npub);
+
+						const eventData = await ndk.fetchEvent({
+							authors: [hexpub],
+							"#d": [templateName],
+						});
+
+						if (!eventData) {
+							console.error("No event data found for this link");
+							return;
+						}
+
+						if (eventData.kind === 32616) {
+							console.log(
+								"eventData while parsing links",
+								eventData
+							);
+
+							document
+								.createElement("hn-element")
+								.setAttribute("hn-template", originalHref);
+							const ele = document.createElement("hn-element");
+							ele.setAttribute("hn-template", originalHref);
+							this.shadowRoot?.replaceChildren(ele);
+						} else {
+							// find our parent and replace the "d" attribute with the new template name
+							const parent = this.parentElement;
+							if (parent) {
+								console.log("parent", parent);
+								parent.setAttribute("d", templateName);
+							}
+						}
 					};
 				}
 			});
@@ -309,7 +348,7 @@ class HyperNoteQueryElement extends HTMLElement {
 		);
 	}
 
-	static observedAttributes = ["kind", "authors", "limit"];
+	static observedAttributes = ["kind", "authors", "limit", "d"];
 
 	constructor() {
 		super();
@@ -320,75 +359,102 @@ class HyperNoteQueryElement extends HTMLElement {
 		await this.fetchQuery();
 	}
 
+	async attributeChangedCallback() {
+		console.log("hn-query attributeChangedCallback");
+		await this.fetchQuery();
+	}
+
 	async fetchQuery() {
+		console.log("hn-query fetching query");
 		const kind = this.getAttribute("kind");
 		const authors = this.getAttribute("authors");
 		const limit = this.getAttribute("limit");
-		// const d = this.getAttribute("d");
+		const event = this.getAttribute("event");
+		const d = this.getAttribute("d");
 
-		// Kind
-		if (!kind || isNaN(Number(kind))) {
-			console.error("Invalid kind provided");
-			return;
-		}
-
-		let parsedKind = Number(kind);
-
-		// Authors
-		let authorsArray = [];
-
-		if (authors?.startsWith("[") && authors?.endsWith("]")) {
-			console.log("authors is an array");
-			authorsArray = JSON.parse(authors);
-		} else {
-			authorsArray.push(authors);
-		}
-
-		// Convert all the authors into hexpubs
-		authorsArray = authorsArray.map((a: string) => {
-			return pubkeyToHexpub(a);
-		});
-
-		// Limit (defaults to 1)
-		let parsedLimit = 1;
-
-		if (limit && !isNaN(Number(limit))) {
-			parsedLimit = Number(limit);
-		}
-
-		const query = {
-			kinds: [parsedKind],
-			authors: authorsArray,
-			limit: parsedLimit,
-		};
-
-		// if (d && d.length > 0) {
-		//     query["#d"] = [d];
-		// }
+		console.log(
+			`hn-query... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}`
+		);
 
 		let events: NDKEvent[] = [] as NDKEvent[];
 
-		try {
-			if (parsedLimit === 1) {
-				const event = await ndk.fetchEvent({
-					kinds: query.kinds,
-					authors: query.authors,
-				});
-				if (!event) {
-					console.error("No event found for this query: ", query);
-					return;
-				}
-				events.push(event);
-			} else {
-				const eventsSet = await ndk.fetchEvents(query);
-				if (eventsSet.size === 0) {
-					console.error("No events found for this query: ", query);
-					return;
-				}
-				events = Array.from(eventsSet);
+		// If there's an event we just fetch that and ignore the other params
+		if (event) {
+			const e = await ndk.fetchEvent({
+				ids: [event],
+			});
+			if (e) {
+				events.push(e as NDKEvent);
 			}
-		} catch (e) {
-			console.error("Error fetching events", e);
+		} else {
+			// Kind
+			if (!kind || isNaN(Number(kind))) {
+				console.error("Invalid kind provided");
+				return;
+			}
+
+			let parsedKind = Number(kind);
+
+			// Authors
+			let authorsArray = [];
+
+			if (authors?.startsWith("[") && authors?.endsWith("]")) {
+				console.log("authors is an array");
+				authorsArray = JSON.parse(authors);
+			} else {
+				authorsArray.push(authors);
+			}
+
+			// Convert all the authors into hexpubs
+			authorsArray = authorsArray.map((a: string) => {
+				return pubkeyToHexpub(a);
+			});
+
+			// Limit (defaults to 1)
+			let parsedLimit = 1;
+
+			if (limit && !isNaN(Number(limit))) {
+				// TODO: limit isn't working?
+				console.log("limit is a number: ", limit);
+				parsedLimit = Number(limit);
+			}
+
+			const query = {
+				kinds: [parsedKind],
+				authors: authorsArray,
+				limit: parsedLimit,
+			};
+
+			if (d) {
+				query["#d"] = [d];
+			}
+
+			try {
+				if (parsedLimit === 1) {
+					const event = await ndk.fetchEvent({
+						kinds: query.kinds,
+						authors: query.authors,
+						"#d": d ? [d] : undefined,
+					});
+					if (!event) {
+						console.error("No event found for this query: ", query);
+						return;
+					}
+					events.push(event);
+				} else {
+					const eventsSet = await ndk.fetchEvents(query);
+					if (eventsSet.size === 0) {
+						console.error(
+							"No events found for this query: ",
+							query
+						);
+						return;
+					}
+					events = Array.from(eventsSet);
+				}
+			} catch (e) {
+				console.error("Error fetching events", e);
+			}
 		}
 
 		console.log("events", events);
@@ -749,11 +815,11 @@ function hydrateSpecialElements(
 function markdownToHtml(content: string): string {
 	marked.use(gfmHeadingId());
 
-	return sanitizeHtml(
-		// eslint-disable-next-line no-misleading-character-class
-		marked.parse(
-			content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
-		)
+	// TODO: lol sanitize html again
+
+	// eslint-disable-next-line no-misleading-character-class
+	return marked.parse(
+		content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
 	);
 }
 

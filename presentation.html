@@ -7,7 +7,7 @@
 		<title>Hypernote</title>
 	</head>
 	<body>
-		<!-- <template id="single-slide">
+		<template id="single-slide">
 			<style>
 				* {
 					cursor: url("pointer.png"), auto;
@@ -53,27 +53,21 @@
 					display: flex;
 					gap: 1rem;
 				}
-
-				button {
-					background: none;
-					border: none;
-				}
 			</style>
 			<section id="slide">
 				<div id="left">
-					<div>empty</div>
+					<div></div>
 					<div>
-						<slot name="text-content"></slot>
+						<!-- <slot name="text-content"></slot> -->
+						<hn-markdown value="content"></hn-markdown>
 					</div>
-                    <nav>
-					    <slot name="nav"></slot>
-                    </nav>
+					<nav></nav>
 				</div>
 				<div id="right">
-					<slot name="image-content"> </slot>
+					<hn-img value="image"></hn-img>
 				</div>
 			</section>
-		</template> -->
+		</template>
 		<section
 			hn-use="hn-ee112e78e61ca9ab57c9e356da2b150c0ec1d6eb434ebb28030188f2ff994218"
 			id="slide1"

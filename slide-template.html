@@ -1,0 +1,60 @@
+<template id="single-slide">
+	<style>
+		* {
+			cursor: url("https://cdn.satellite.earth/53ee320f1e6f7eab2900feda97667ac0ea1c4b0ed7eb63ed8b84b48c182b0c50.png"),
+				auto;
+			min-height: 0;
+			min-width: 0;
+			font-family: "SF Mono", SFMono-Regular, ui-monospace,
+				"DejaVu Sans Mono", Menlo, Consolas, monospace;
+			line-height: 1.5;
+			font-weight: 400;
+		}
+
+		img {
+			max-height: 100%;
+			max-width: 100%;
+			object-fit: cover;
+		}
+
+		#slide {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: 1fr;
+			grid-template-areas: "left right";
+			height: calc(100vh - 1rem);
+			width: calc(100vw - 1rem);
+		}
+
+		#left {
+			padding: 1rem;
+			display: grid;
+			grid-template-rows: 1fr auto 1fr;
+		}
+
+		#right {
+			align-self: center;
+		}
+
+		nav {
+			align-self: end;
+			display: flex;
+			gap: 1rem;
+		}
+	</style>
+	<section id="slide">
+		<div id="left">
+			<div></div>
+			<div>
+				<h1><slot name="title"></h1>
+				<p><slot name="summary"></slot></p>
+			</div>
+			<nav>
+				<hn-markdown value="content"></hn-markdown>
+			</nav>
+		</div>
+		<div id="right">
+			<hn-img value="image"></hn-img>
+		</div>
+	</section>
+</template>

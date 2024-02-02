@@ -172,10 +172,9 @@ display nip-23 markdown content
 
 ```html
 <template id="markdown-basic">
-	<h1><slot name="title"></h1>
+	<h1><slot name="title"></slot></h1>
 	<hn-img value="image"></hn-img>
-	<hn-markdown value="content">
-	</hn-markdown>
+	<hn-markdown value="content"> </hn-markdown>
 </template>
 ```
 
@@ -207,32 +206,4 @@ display an image
 
 ```html
 <hn-img value="content.picture"></hn-img>
-```
-
-### Slide deck (putting it all together)
-
-```html
-<template id="sec-demo-slide-1">
-	<h1>this is slide 1</h1>
-	<p>
-		<a
-			href="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/sec-demo-slide-2"
-		>
-			this is a link to slide 2
-		</a>
-	</p>
-</template>
-```
-
-```html
-<template id="sec-demo-slide-2">
-	<h1>this is slide 2</h1>
-	<p>
-		<a
-			href="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/sec-demo-slide-1"
-		>
-			this is a link to slide 1
-		</a>
-	</p>
-</template>
 ```
