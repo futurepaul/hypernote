@@ -1,7 +1,9 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
+import checker from "vite-plugin-checker";
 
 export default defineConfig({
+	plugins: [checker({ typescript: false })],
 	build: {
 		target: "esnext",
 		rollupOptions: {
