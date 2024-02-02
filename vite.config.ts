@@ -9,6 +9,7 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: resolve(__dirname, "index.html"),
+				design: resolve(__dirname, "design.html"),
 				guestbook: resolve(__dirname, "guestbook.html"),
 				dvm: resolve(__dirname, "dvm.html"),
 				publish: resolve(__dirname, "publish.html"),
