@@ -6,12 +6,7 @@ import NDK, {
 import { nip19 } from "nostr-tools";
 
 class HNElement extends NDKEvent {
-	constructor(
-		ndk: NDK | undefined,
-		dTagName: string,
-		kind?: number,
-		author?: boolean
-	) {
+	constructor(ndk: NDK | undefined, dTagName: string) {
 		super(ndk, undefined);
 
 		// The kind of the HyperNoteElement event
@@ -85,7 +80,7 @@ const ndk = new NDK({
 await ndk.connect(6000);
 
 const kind32616Events = await ndk.fetchEvents({
-	kinds: [32616],
+	kinds: [32616 as number],
 	authors: [
 		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
 	],
@@ -148,6 +143,7 @@ export async function publishSnippet(snippet: string, name: string) {
 }
 
 export async function signSnippet(snippet: string) {
+	// @ts-expect-error
 	const element = new HNElement(ndk, 1, true);
 	element.content = snippet.trim();
 	await element.sign();
@@ -184,9 +180,11 @@ publishForm?.addEventListener("submit", async (event) => {
 	);
 
 	const pre = document.querySelector("pre#publishid");
+	// @ts-expect-error
 	pre.innerHTML = id;
 
 	// clear the form
+	// @ts-expect-error
 	publishForm.content.value = "";
 });
 
@@ -206,15 +204,17 @@ justIdForm?.addEventListener("submit", async (event) => {
 	const id = await signSnippet(formData.get("content") as string);
 
 	const pre = document.querySelector("pre#eventid");
+	// @ts-expect-error
 	pre.innerHTML = id;
 
 	// clear the form
+	// @ts-expect-error
 	justIdForm.content.value = "";
 });
 
 for (const event of kind32616Events) {
 	const pre = document.createElement("pre");
-	console.log(event.rawEvent())
+	console.log(event.rawEvent());
 	pre.innerText = JSON.stringify(event.rawEvent(), null, 2);
 	document.body.appendChild(pre);
 }

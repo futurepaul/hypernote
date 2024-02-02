@@ -6,7 +6,7 @@ import { nip19 } from "nostr-tools";
 import { marked } from "marked";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 // TODO LOL
-import sanitizeHtml from "sanitize-html";
+// import sanitizeHtml from "sanitize-html";
 
 const prefixes = [
 	"nprofile",
@@ -325,7 +325,7 @@ class HyperNoteElement extends HTMLElement {
 	async fetchTemplate(npub: string, templateName: string) {
 		const hexpub = pubkeyToHexpub(npub);
 		const events = await ndk.fetchEvents({
-			kinds: [32616],
+			kinds: [32616 as number],
 			authors: [hexpub],
 			"#d": [templateName],
 		});
@@ -532,36 +532,6 @@ class HyperNoteQueryElement extends HTMLElement {
 			return;
 		}
 
-		// // If we don't have an hn-element, look to see if we have any children
-		// const children = this.children;
-
-		// if (children.length > 0) {
-		// 	console.log("We have children");
-		// 	// If we have children, we're going to wrap them in a new hn-element
-		// 	// TODO: not handling multiple events here really
-
-		// 	const existingChildren = Array.from(children);
-
-		// 	// Delete the original children so we can replace it with the hydrated version
-		// 	existingChildren.forEach((c) => {
-		// 		c.remove();
-		// 	});
-
-		// 	for (const event of events) {
-		// 		const ele = document.createElement(
-		// 			"hn-element"
-		// 		) as HyperNoteElement;
-		// 		ele.setAttribute("hn-template", "none");
-		// 		ele.templateName = "none";
-
-		// 		const data = event?.rawEvent();
-		// 		ele.setAttribute("hn-event-data", JSON.stringify(data));
-
-		// 		this.appendChild(ele);
-		// 	}
-		// 	return;
-		// }
-
 		// If we have no children just put events in the dom inside a <pre> tag
 		events.forEach((event) => {
 			const pre = document.createElement("pre");
@@ -644,17 +614,6 @@ class HyperNoteAElement extends SpecialElement {
 			newEle.innerHTML = this.innerHTML;
 			this.replaceChildren(newEle);
 		}
-		// const innerText = this.innerText;
-		// console.log("rendering hn-a", value, innerText);
-		// const newEle = document.createElement("a");
-		// newEle.href = `https://njump.me/${value}`;
-		// newEle.target = "_blank";
-		// newEle.innerText = innerText;
-		// this.replaceChildren(newEle);
-
-		// this.innerHTML = /* html */ `
-		//     <a href="https://njump.me/${value}" target="_blank">${innerHTML}</a>
-		//     `;
 	}
 }
 
@@ -879,6 +838,8 @@ function hydrateSpecialElements(
 		const fieldParts = field.split(".");
 
 		// If the field isn't in the event or the content we need to look in the tags
+		// TODO: figure out how to get typescript to like this
+		// @ts-expect-error
 		if (!event[field] && !content[fieldParts[1]]) {
 			console.warn(`No field found for ${field}, looking in tags`);
 
@@ -892,6 +853,8 @@ function hydrateSpecialElements(
 			}
 		} else {
 			if (fieldParts.length === 1) {
+				// TODO: figure out how to get typescript to like this
+				// @ts-expect-error
 				element.setAttribute("value", event[field]);
 			}
 
@@ -899,26 +862,6 @@ function hydrateSpecialElements(
 				element.setAttribute("value", content[fieldParts[1]]);
 			}
 		}
-
-		// // assuming content.key
-		// // TODO: make this more robust
-		// if (valueKey.includes(".")) {
-		// 	const [_, key] = valueKey.split(".");
-		// 	const value = content[key];
-		// 	if (!value) {
-		// 		console.error(`No value found for ${selector} ${valueKey}`);
-		// 		return;
-		// 	}
-		// 	element.setAttribute("value", value.toString());
-		// 	return;
-		// } else {
-		// 	const value = event[valueKey];
-		// 	if (!value) {
-		// 		console.error(`No value found for ${selector} ${valueKey}`);
-		// 		return;
-		// 	}
-		// 	element.setAttribute("value", value.toString());
-		// }
 	});
 }
 
@@ -928,6 +871,7 @@ function markdownToHtml(content: string): string {
 
 	// TODO: lol sanitize html again
 
+	// @ts-expect-error
 	return marked.parse(
 		content.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
 	);
@@ -961,16 +905,16 @@ export async function login() {
 
 // console.log("query test", query);
 
-const query = await ndk.fetchEvents({
-	kinds: [1],
-	// authors: [
-	// 	"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
-	// ],
-	"#a": [
-		"30023:0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33:home",
-	],
-	// limit: 1
-	// "#d": ["nsecBunker-0-10-z9l8tw"]
-});
+// const query = await ndk.fetchEvents({
+// 	kinds: [1],
+// 	// authors: [
+// 	// 	"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+// 	// ],
+// 	"#a": [
+// 		"30023:0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33:home",
+// 	],
+// 	// limit: 1
+// 	// "#d": ["nsecBunker-0-10-z9l8tw"]
+// });
 
-console.log("query test", query);
+// console.log("query test", query);
