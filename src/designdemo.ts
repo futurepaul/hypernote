@@ -395,20 +395,29 @@ class HyperNoteQueryElement extends HTMLElement {
 
 			let parsedKind = Number(kind);
 
+			console.log("parsedKind", parsedKind);
+
 			// Authors
-			let authorsArray = [];
+			let authorsArray: string[] = [];
 
 			if (authors?.startsWith("[") && authors?.endsWith("]")) {
 				console.log("authors is an array");
 				authorsArray = JSON.parse(authors);
 			} else {
-				authorsArray.push(authors);
+				if (authors) {
+					authorsArray.push(authors);
+				}
 			}
 
-			// Convert all the authors into hexpubs
-			authorsArray = authorsArray.map((a: string) => {
-				return pubkeyToHexpub(a);
-			});
+			if (authorsArray?.length === 0) {
+				console.warn("No authors provided");
+			} else {
+				console.log("authorsArray", authorsArray);
+				// Convert all the authors into hexpubs
+				authorsArray = authorsArray.map((a: string) => {
+					return pubkeyToHexpub(a);
+				});
+			}
 
 			// Limit (defaults to 1)
 			let parsedLimit = 1;
@@ -419,11 +428,20 @@ class HyperNoteQueryElement extends HTMLElement {
 				parsedLimit = Number(limit);
 			}
 
-			const query = {
-				kinds: [parsedKind],
-				authors: authorsArray,
-				limit: parsedLimit,
-			};
+			const query: {
+				kinds?: number[];
+				authors?: string[];
+				limit?: number;
+				"#d"?: string[];
+			} = {};
+
+			if (parsedKind !== undefined && !isNaN(parsedKind)) {
+				query.kinds = [parsedKind];
+			}
+
+			if (authorsArray.length > 0) {
+				query.authors = authorsArray;
+			}
 
 			if (d) {
 				query["#d"] = [d];
@@ -431,17 +449,15 @@ class HyperNoteQueryElement extends HTMLElement {
 
 			try {
 				if (parsedLimit === 1) {
-					const event = await ndk.fetchEvent({
-						kinds: query.kinds,
-						authors: query.authors,
-						"#d": d ? [d] : undefined,
-					});
+					console.log("fetching single event with query: ", query);
+					const event = await ndk.fetchEvent(query);
 					if (!event) {
 						console.error("No event found for this query: ", query);
 						return;
 					}
 					events.push(event);
 				} else {
+					query.limit = parsedLimit;
 					const eventsSet = await ndk.fetchEvents(query);
 					if (eventsSet.size === 0) {
 						console.error(
@@ -497,35 +513,35 @@ class HyperNoteQueryElement extends HTMLElement {
 			return;
 		}
 
-		// If we don't have an hn-element, look to see if we have any children
-		const children = this.children;
+		// // If we don't have an hn-element, look to see if we have any children
+		// const children = this.children;
 
-		if (children.length > 0) {
-			console.log("We have children");
-			// If we have children, we're going to wrap them in a new hn-element
-			// TODO: not handling multiple events here really
+		// if (children.length > 0) {
+		// 	console.log("We have children");
+		// 	// If we have children, we're going to wrap them in a new hn-element
+		// 	// TODO: not handling multiple events here really
 
-			const existingChildren = Array.from(children);
+		// 	const existingChildren = Array.from(children);
 
-			// Delete the original children so we can replace it with the hydrated version
-			existingChildren.forEach((c) => {
-				c.remove();
-			});
+		// 	// Delete the original children so we can replace it with the hydrated version
+		// 	existingChildren.forEach((c) => {
+		// 		c.remove();
+		// 	});
 
-			for (const event of events) {
-				const ele = document.createElement(
-					"hn-element"
-				) as HyperNoteElement;
-				ele.setAttribute("hn-template", "none");
-				ele.templateName = "none";
+		// 	for (const event of events) {
+		// 		const ele = document.createElement(
+		// 			"hn-element"
+		// 		) as HyperNoteElement;
+		// 		ele.setAttribute("hn-template", "none");
+		// 		ele.templateName = "none";
 
-				const data = event?.rawEvent();
-				ele.setAttribute("hn-event-data", JSON.stringify(data));
+		// 		const data = event?.rawEvent();
+		// 		ele.setAttribute("hn-event-data", JSON.stringify(data));
 
-				this.appendChild(ele);
-			}
-			return;
-		}
+		// 		this.appendChild(ele);
+		// 	}
+		// 	return;
+		// }
 
 		// If we have no children just put events in the dom inside a <pre> tag
 		events.forEach((event) => {
@@ -536,7 +552,7 @@ class HyperNoteQueryElement extends HTMLElement {
 			pre.style.wordBreak = "break-word";
 
 			pre.innerText = JSON.stringify(event?.rawEvent(), null, 2);
-			this.appendChild(pre);
+			this.replaceChildren(pre);
 		});
 	}
 }
@@ -831,9 +847,9 @@ function markdownToHtml(content: string): string {
 // console.log("query test", query);
 
 const query = await ndk.fetchEvents({
-	kinds: [30023],
+	kinds: [1],
 	authors: [
-		"fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52",
+		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
 	],
 	// limit: 1
 	// "#d": ["nsecBunker-0-10-z9l8tw"]
