@@ -6,30 +6,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Hypernote</title>
 		<link rel="stylesheet" href="/src/style.css" />
-		<style type="text/css">
-			ul {
-				padding-left: 2rem;
-			}
-		</style>
 	</head>
 	<body>
-		<h1>HyperNote</h1>
-		<ul>
-			<li>
-				<a href="/sec-demo1.html">Sec Presentation</a>
-			</li>
-			<li>
-				<a href="/design.html">Design Demo</a>
-			</li>
-			<li>
-				<a href="/publish.html">Publish</a>
-			</li>
-			<li>
-				<a href="/guestbook.html">Guestbook</a>
-			</li>
-			<li>
-				<a href="/dvm.html">DVM</a>
-			</li>
-		</ul>
+		<div data-router-outlet id="root"></div>
+		<script type="module" src="/src/index.ts"></script>
+		<script type="module" src="/src/designdemo.ts"></script>
 	</body>
 </html>
