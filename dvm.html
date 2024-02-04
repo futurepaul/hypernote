@@ -4,12 +4,37 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Hypernote</title>
+		<style>
+			form {
+				display: flex;
+				flex-direction: column;
+				max-width: 20rem;
+			}
+		</style>
 	</head>
 	<body>
+		<form id="dvmrequest">
+			<textarea
+				placeholder="put some json here!"
+				name="i"
+				cols="50"
+				rows="10"
+			></textarea>
+			<input type="hidden" name="kind" value="5600" />
+			<button type="submit">Send Request</button>
+		</form>
+		<h1>Form Result ID</h1>
+		<button id="refreshresult">Refresh</button>
+		<div id="dvmresult"></div>
+		<!-- <hn-query
+			kind="7000"
+			e="969a87decb2cce71ed5e54846d347a2fade1d5ec6f9753c9c6346307ab5fc1fe"
+		></hn-query> -->
 		<h1>Requests</h1>
 		<hn-query kind="5600"> </hn-query>
 		<h1>Responses</h1>
 		<hn-query kind="6600"> </hn-query>
 	</body>
 	<script type="module" src="/src/designdemo.ts"></script>
+	<script type="module" src="/src/dvm.ts"></script>
 </html>

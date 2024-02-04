@@ -24,6 +24,7 @@ const ndk = new NDK({
 		"wss://nostr-pub.wellorder.net",
 		"wss://nos.lol",
 		"wss://offchain.pub",
+		"wss://relay.damus.io",
 	],
 	enableOutboxModel: false,
 });
@@ -353,7 +354,7 @@ class HyperNoteQueryElement extends HTMLElement {
 		);
 	}
 
-	static observedAttributes = ["kind", "authors", "limit", "d"];
+	static observedAttributes = ["kind", "authors", "limit", "d", "e"];
 
 	constructor() {
 		super();
@@ -377,9 +378,10 @@ class HyperNoteQueryElement extends HTMLElement {
 		const event = this.getAttribute("event");
 		const d = this.getAttribute("d");
 		const a = this.getAttribute("a");
+		const e = this.getAttribute("e");
 
 		console.log(
-			`hn-query... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}`
+			`hn-query... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}, a: ${a}, e: ${e}`
 		);
 
 		let events: NDKEvent[] = [] as NDKEvent[];
@@ -440,6 +442,7 @@ class HyperNoteQueryElement extends HTMLElement {
 				limit?: number;
 				"#d"?: string[];
 				"#a"?: string[];
+				"#e"?: string[];
 			} = {};
 
 			if (parsedKind !== undefined && !isNaN(parsedKind)) {
@@ -456,6 +459,10 @@ class HyperNoteQueryElement extends HTMLElement {
 
 			if (a) {
 				query["#a"] = [a];
+			}
+
+			if (e) {
+				query["#e"] = [e];
 			}
 
 			try {
@@ -482,7 +489,11 @@ class HyperNoteQueryElement extends HTMLElement {
 					eventsSet.forEach((e) => {
 						events.push(e);
 					});
-					// events = Array.from(eventsSet);
+
+					// TODO: there has to be a smarter way to just get one
+					if (query.limit === 1) {
+						events = [events[0]];
+					}
 				}
 			} catch (e) {
 				console.error("Error fetching events", e);
@@ -877,7 +888,7 @@ function markdownToHtml(content: string): string {
 	);
 }
 
-export async function loginWithNip07() {
+async function loginWithNip07() {
 	try {
 		const signer = new NDKNip07Signer();
 		return signer.user().then(async (user) => {
@@ -890,7 +901,7 @@ export async function loginWithNip07() {
 	}
 }
 
-export async function login() {
+async function login() {
 	// const nsec = prompt("Enter your nsec key");
 	// const user = nsec
 	// const user = nsec ? await loginWithSecret(nsec) : undefined;
