@@ -213,6 +213,8 @@ export function hydrateSlots(
 			// return;
 		} else {
 			// If the field isn't in the event or the content we need to look in the tags
+			// TODO figure out how to get typescript happy with this
+			// @ts-expect-error
 			if (!event[field] && !content[fieldParts[1]]) {
 				console.error(`No field found for ${field}, looking in tags`);
 
@@ -226,6 +228,8 @@ export function hydrateSlots(
 				}
 			} else {
 				if (fieldParts.length === 1) {
+					// TODO
+					// @ts-expect-error
 					s.innerText = event[field];
 				}
 
@@ -240,31 +244,12 @@ export function hydrateSlots(
 	});
 }
 
-export function hydrateChildQueries(
-	childQueries: NodeListOf<HyperNoteQueryElement>,
-	event: NDKEvent,
-	content: any
-) {
-	console.log("child queries", childQueries);
-	childQueries.forEach((c) => {
-		const authors = c.getAttribute("authors");
-
-		// TODO: make this more generic for other fields and for content
-		if (authors?.startsWith("#")) {
-			// If the authors attribute starts with a #, it's a reference to a field in the event
-			const field = authors.slice(1);
-			console.log("authors field", field);
-			c.setAttribute("authors", event[field]);
-		}
-	});
-}
-
 export function parseTemplateString(
 	templateId: string | undefined | null
 ): [string, string] {
 	// If there's no template, we can't do anything
 	if (!templateId) {
-		console.error("No template provided for hn-element");
+		console.error("No template provided for hn-element", templateId);
 		return ["", ""];
 	}
 
@@ -407,8 +392,54 @@ export async function registerHnElement(
 		return template;
 	} else {
 		console.error("No template id found for hn-element", hnElement);
-		return null;
+		// return null;
 	}
+
+	const templateQuery = hnElement.getAttribute("hn-template");
+	console.log("templateQuery", templateQuery);
+	const [npub, templateName] = parseTemplateString(templateQuery);
+
+	if (!npub || !templateName) {
+		console.error(
+			"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
+		);
+	}
+	const existingTemplate = document.querySelector("template#" + templateName);
+
+	if (existingTemplate) {
+		console.log(`Template ${templateName} already exists`);
+		return existingTemplate as HTMLTemplateElement;
+	} else {
+		const [npub, templateName] = parseTemplateString(templateQuery);
+
+		if (!npub || !templateName) {
+			console.error(
+				"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
+			);
+		}
+		console.log(`Fetching template ${templateName}`);
+		const template = await fetchTemplate(npub, templateName, ndk);
+
+		if (!template) {
+			console.error("No template found");
+			return null;
+		}
+
+		// Add the template to the dom
+		const templateElement = templateFromHtml(template);
+		templateElement?.setAttribute("id", templateName);
+		if (!templateElement) {
+			console.error("Invalid template");
+			return null;
+		}
+
+		hnElement.setAttribute("id", templateName);
+
+		document.body.append(templateElement);
+		return templateElement;
+	}
+
+	return null;
 }
 
 export function getAllPubkeysFromEvent(event: NDKEvent): string[] {
@@ -421,4 +452,23 @@ export function getAllPubkeysFromEvent(event: NDKEvent): string[] {
 	});
 
 	return pubkeys;
+}
+
+async function fetchTemplate(npub: string, templateName: string, ndk: NDK) {
+	console.log("fetching template", npub, templateName);
+	const hexpub = pubkeyToHexpub(npub);
+	const events = await ndk.fetchEvents({
+		kinds: [32616 as number],
+		authors: [hexpub],
+		"#d": [templateName],
+	});
+
+	if (events.size === 0) {
+		console.error("No events found for this template");
+		return;
+	}
+
+	const event = events.values().next().value as NostrEvent;
+
+	return event.content;
 }

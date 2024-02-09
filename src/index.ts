@@ -33,9 +33,11 @@ const routes: Route[] = [
 			}
 
 			return `
-        <hn-element
-            hn-template="nostr:${params.npub}/${params.d}"
-        ></hn-element>`;
+			<hn-query authors="${params.npub}" d="home" kind="30023">
+				<hn-element
+					hn-template="nostr:${params.npub}/${params.d}"
+				></hn-element>
+			</hn-query>`;
 		},
 	},
 ];
