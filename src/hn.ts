@@ -441,8 +441,14 @@ class HyperNoteElement extends HTMLElement {
 		});
 
 		// Find all the author attributes that are just a #
-		const authorAttributes =
-			shadowRoot.querySelectorAll("hn-query[authors]");
+		// const authorAttributes =
+		// 	shadowRoot.querySelectorAll("hn-query[authors]");
+
+		// NICE this worked
+		// Find all the author attributes that are just a # and aren't a child of another hn-query
+		const authorAttributes = shadowRoot.querySelectorAll(
+			"hn-query[authors]:not(hn-query hn-query)"
+		);
 		authorAttributes.forEach((a) => {
 			const authors = a.getAttribute("authors");
 			if (authors?.startsWith("#")) {
