@@ -1,5 +1,3 @@
-const root = document.getElementById("root");
-
 type Route = {
 	path: string;
 	getTemplate?: (params?: { npub: string; d: string }) => string;
