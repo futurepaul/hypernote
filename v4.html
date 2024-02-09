@@ -17,88 +17,79 @@
 	</head>
 	<body>
 		<div data-router-outlet id="root">
-			<!-- <hn-query
-				kind="3"
-				authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
-			>
-				<hn-element id="follow-list">
-					<style>
-						pre {
-							font-size: small;
-							word-break: break-all;
-							white-space: pre-wrap;
-						}
-					</style>
-					<pre><slot name="tags"></slot></pre>
-				</hn-element>
-			</hn-query> -->
-			<hn-query
-				kind="3"
-				authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
-			>
-				<hn-query kind="1" authors="#" limit="100">
-					<hn-element id="note-basic">
-						<style>
-							hn-a {
-								font-size: small;
-								font-weight: lighter;
-								color: var(--fg);
-								width: 5rem;
-								display: inline-flex;
-							}
+			<hn-query>
+				<hn-query
+					kind="3"
+					authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
+				>
+					<hn-query kind="1" authors="#" limit="100">
+						<hn-element id="note-basic">
+							<style>
+								hn-a {
+									font-size: small;
+									font-weight: lighter;
+									color: var(--fg);
+									width: 5rem;
+									display: inline-flex;
+								}
 
-							hn-a a {
-								text-overflow: ellipsis;
-								white-space: nowrap;
-								overflow: hidden;
-								flex: 1;
-							}
+								hn-a a {
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									overflow: hidden;
+									flex: 1;
+								}
 
-							time {
-								font-size: small;
-							}
-						</style>
-						<figure>
-							<hn-query kind="0" authors="#">
-								<hn-element id="mini-profile">
-									<style>
-										img {
-											border-radius: 50%;
-											width: 2rem;
-											height: 2rem;
-										}
-										div {
-											display: flex;
-											align-items: center;
-											gap: 1rem;
-											margin-top: 2rem;
-										}
+								time {
+									font-size: small;
+								}
+							</style>
+							<figure>
+								<hn-query kind="0" authors="#">
+									<hn-element id="mini-profile">
+										<style>
+											img {
+												border-radius: 50%;
+												width: 2rem;
+												height: 2rem;
+											}
+											div {
+												display: flex;
+												align-items: center;
+												gap: 1rem;
+												margin-top: 2rem;
+											}
 
-										h4 {
-											margin: 0;
-										}
-									</style>
-									<div>
-										<hn-img
-											width="24px"
-											height="24px"
-											value="content.picture"
-										></hn-img>
-										<h4>
-											<slot name="content.name"></slot>
-										</h4>
-									</div>
-								</hn-element>
-							</hn-query>
-							<p>
-								<slot name="content"></slot>
-							</p>
+											h4 {
+												margin: 0;
+											}
+										</style>
+										<div>
+											<hn-img
+												width="24px"
+												height="24px"
+												value="content.picture"
+											></hn-img>
+											<h4>
+												<slot
+													name="content.name"
+												></slot>
+											</h4>
+										</div>
+									</hn-element>
+								</hn-query>
+								<p>
+									<slot name="content"></slot>
+								</p>
 
-							<hn-a value="id"><slot name="id"></slot></hn-a
-							>&nbsp;
-							<time><hn-time value="created_at"></hn-time></time>
-						</figure>
-					</hn-element>
+								<hn-a value="id"><slot name="id"></slot></hn-a
+								>&nbsp;
+								<time
+									><hn-time value="created_at"></hn-time
+								></time>
+							</figure>
+						</hn-element>
+					</hn-query>
 				</hn-query>
 			</hn-query>
 		</div>

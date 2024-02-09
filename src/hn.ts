@@ -185,6 +185,21 @@ export class HyperNoteQueryElement extends HTMLElement {
 
 		try {
 			template = await registerHnElement(firstChild, ndk);
+
+			// TODO: this almost works but doesn't
+			if (this.queryResult.length === 0) {
+				const templateId = firstChild.getAttribute("id");
+				console.log("cloning node");
+				const clone = template?.content.cloneNode(true);
+				console.log(`attempting to clone ${templateId}`, clone);
+				const newElement = document.createElement("hn-element");
+				newElement.attachShadow({ mode: "open" });
+				newElement.shadowRoot?.appendChild(clone!);
+				newElement.setAttribute("id", firstChild.getAttribute("id")!);
+				this.appendChild(newElement);
+				// newElement.render();
+				firstChild.remove();
+			}
 		} catch (e) {
 			console.error("error registering hn-element", e);
 		}
