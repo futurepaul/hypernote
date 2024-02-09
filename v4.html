@@ -39,10 +39,23 @@
 				<hn-query kind="1" authors="#" limit="100">
 					<hn-element id="note-basic">
 						<style>
-							hn-a a {
+							hn-a {
 								font-size: small;
 								font-weight: lighter;
 								color: var(--fg);
+								width: 5rem;
+								display: inline-flex;
+							}
+
+							hn-a a {
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								overflow: hidden;
+								flex: 1;
+							}
+
+							time {
+								font-size: small;
 							}
 						</style>
 						<figure>
@@ -81,7 +94,9 @@
 								<slot name="content"></slot>
 							</p>
 
-							<hn-a value="id"><slot name="id"></slot></hn-a>
+							<hn-a value="id"><slot name="id"></slot></hn-a
+							>&nbsp;
+							<time><hn-time value="created_at"></hn-time></time>
 						</figure>
 					</hn-element>
 				</hn-query>
