@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+		<style>
+			form {
+				display: flex;
+				flex-direction: column;
+				max-width: 20rem;
+			}
+		</style>
+	</head>
+	<body>
+		<hn-query kind="36963" limit="100">
+			<hn-element id="hey-henry" debug>
+				<hn-iframe value="content"></hn-iframe>
+				<pre>
+                
+				<slot name="content"></slot>
+				</pre>
+			</hn-element>
+		</hn-query>
+	</body>
+	<!-- <script type="module" src="/src/designdemo.ts"></script> -->
+	<script type="module" src="/src/hn.ts"></script>
+</html>

@@ -13,6 +13,7 @@ import {
 	registerHnElement,
 	wrapAll,
 } from "./utils";
+import { parseContent } from "./parseNotes";
 
 const ndk = new NDK({
 	explicitRelayUrls: [
@@ -35,7 +36,15 @@ export class HyperNoteQueryElement extends HTMLElement {
 		console.log(this.nodeName, "\t\t\t", ...args);
 	}
 
-	static observedAttributes = ["kind", "authors", "limit", "d", "e", "debug"];
+	static observedAttributes = [
+		"kind",
+		"authors",
+		"limit",
+		"d",
+		"e",
+		"debug",
+		"require",
+	];
 
 	constructor() {
 		super();
@@ -80,6 +89,7 @@ export class HyperNoteQueryElement extends HTMLElement {
 		const d = this.getAttribute("d");
 		const a = this.getAttribute("a");
 		const e = this.getAttribute("e");
+		const require = this.getAttribute("require");
 
 		if (authors?.startsWith("#")) {
 			console.warn("Authors starts with #, it's a reference to a field");
@@ -87,7 +97,7 @@ export class HyperNoteQueryElement extends HTMLElement {
 		}
 
 		this.log(
-			`fetchQuery... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}, a: ${a}, e: ${e}`
+			`fetchQuery... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}, a: ${a}, e: ${e}, require: ${require}`
 		);
 
 		try {
@@ -109,7 +119,19 @@ export class HyperNoteQueryElement extends HTMLElement {
 				const filter = ndkFilterFromAttributes(this);
 				console.log("filter", filter);
 
-				this.queryResult = await fetchEventOrEvents(filter, ndk);
+				const qr = await fetchEventOrEvents(filter, ndk);
+				// Make sure the returned event includes a tag[] in tags[] that starts with ${require}
+				if (require) {
+					this.queryResult = qr.filter((e) => {
+						const tags = e.tags;
+						console.log("tags", tags);
+						const found = tags.find((t) => t[0] === require);
+						console.log("found", found);
+						return found;
+					});
+				} else {
+					this.queryResult = qr;
+				}
 			}
 		} catch (e) {
 			console.error("fetching event error", e);
@@ -262,7 +284,7 @@ class HyperNoteElement extends HTMLElement {
 		console.log(this.nodeName, "\t\t\t", ...args);
 	}
 
-	static observedAttributes = ["hn-event-data"];
+	static observedAttributes = ["hn-event-data", "debug"];
 
 	constructor() {
 		super();
@@ -284,79 +306,6 @@ class HyperNoteElement extends HTMLElement {
 				"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
 			);
 		}
-
-		// if (npub && templateName) {
-		// 	await this.swapForNewTemplate();
-		// }
-	}
-
-	// async swapForNewTemplate() {
-	// 	const templateId = this.getAttribute("hn-template");
-
-	// 	const [npub, templateName] = parseTemplateString(templateId);
-
-	// 	if (!npub || !templateName) {
-	// 		console.error(
-	// 			"Invalid template string. Should be formatted as nostr:<npub>/<templateName>"
-	// 		);
-	// 	}
-
-	// 	// If the template already exists no need to add it again
-	// 	// TODO: this check doesn't work, we fetch each time
-	// 	if (document.querySelector("#" + templateName)) {
-	// 		console.log(`Template ${templateName} already exists`);
-	// 		return;
-	// 	} else {
-	// 		console.log(`Fetching template ${templateName}`);
-	// 		const template = await this.fetchTemplate(npub, templateName);
-
-	// 		if (!template) {
-	// 			console.error("No template found");
-	// 			return;
-	// 		}
-
-	// 		// Add the template to the dom
-	// 		const templateElement = templateFromHtml(template);
-	// 		templateElement?.setAttribute("id", templateName);
-	// 		if (!templateElement) {
-	// 			console.error("Invalid template");
-	// 			return;
-	// 		}
-	// 		document.body.append(templateElement);
-	// 	}
-
-	// 	this.templateName = templateName;
-
-	// 	const templateElement = document.querySelector(
-	// 		"#" + this.templateName
-	// 	) as HTMLTemplateElement;
-
-	// 	// Clone the template and
-	// 	const shadow = this.shadowRoot;
-	// 	shadow?.replaceChildren(templateElement.content.cloneNode(true));
-
-	// 	// this.hydrateLinks();
-
-	// 	this.render();
-	// }
-
-	async fetchTemplate(npub: string, templateName: string) {
-		console.log("fetching template", npub, templateName);
-		const hexpub = pubkeyToHexpub(npub);
-		const events = await ndk.fetchEvents({
-			kinds: [32616 as number],
-			authors: [hexpub],
-			"#d": [templateName],
-		});
-
-		if (events.size === 0) {
-			console.error("No events found for this template");
-			return;
-		}
-
-		const event = events.values().next().value as NostrEvent;
-
-		return event.content;
 	}
 
 	async attributeChangedCallback(
@@ -427,6 +376,14 @@ class HyperNoteElement extends HTMLElement {
 					}
 				} else {
 					if (fieldParts.length === 1) {
+						// TODO: why can't I parse shit it gets clobbered :(
+						// if (field === "content") {
+						// 	if (event.content) {
+						// 		s.innerHTML = event[field];
+						// 	}
+						// } else {
+						// 	s.innerText = event[field];
+						// }
 						s.innerText = event[field];
 					}
 
@@ -458,10 +415,19 @@ class HyperNoteElement extends HTMLElement {
 
 		// this.hydrateLinks();
 
+		const debug = this.hasAttribute("debug");
+
+		if (debug) {
+			const preDiv = document.createElement("pre");
+			preDiv.innerText = JSON.stringify(event, null, 2);
+			shadowRoot.appendChild(preDiv);
+		}
+
 		hydrateSpecialElements(shadowRoot, "hn-a", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-time", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-img", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-markdown", event, content);
+		hydrateSpecialElements(shadowRoot, "hn-iframe", event, content);
 	}
 }
 
@@ -662,11 +628,34 @@ class HyperNoteFormElement extends SpecialElement {
 	}
 }
 
+class HyperNoteIframeElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-iframe";
+	}
+
+	render() {
+		const value = this.getAttribute("value");
+
+		if (!value) {
+			console.error("No value provided for hn-iframe");
+			return;
+		}
+
+		const base64 = btoa(value);
+
+		const dataUrl = `data:text/html;base64,${base64}`;
+
+		this.innerHTML = /* html */ `<iframe src="${dataUrl}"></iframe>`;
+	}
+}
+
 customElements.define("hn-a", HyperNoteAElement);
 customElements.define("hn-time", HyperNoteTimeElement);
 customElements.define("hn-img", HyperNoteImgElement);
 customElements.define("hn-markdown", HyperNoteMarkdownElement);
 customElements.define("hn-form", HyperNoteFormElement);
+customElements.define("hn-iframe", HyperNoteIframeElement);
 
 customElements.define("hn-element", HyperNoteElement);
 customElements.define("hn-query", HyperNoteQueryElement);
