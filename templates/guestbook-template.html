@@ -4,7 +4,6 @@
 			color: white;
 		}
 		section {
-			width: 100%;
 			background-image: url("https://cdn.satellite.earth/28cdf69ca50e9a15d303e9408e1ee616ada90fcac12cc5db7daef9464adfe453.gif");
 			padding: 1rem;
 		}
@@ -13,10 +12,6 @@
 			max-height: 50%;
 			max-width: 75%;
 			object-fit: contain;
-		}
-
-		a {
-			color: lightsalmon;
 		}
 
 		form {
@@ -33,19 +28,24 @@
 		}
 	</style>
 	<section>
-		<hn-img value="image"></hn-img>
-		<h1><slot name="title"></slot></h1>
-		<hn-markdown value="content"></hn-markdown>
+		<hn-query authors="#" d="home" kind="30023">
+			<hn-element id="top-stuff">
+				<hn-img value="image"></hn-img>
+				<h1><slot name="title"></slot></h1>
+				<hn-markdown value="content"></hn-markdown>
+			</hn-element>
+		</hn-query>
 		<hn-a value="pubkey">Find Me On The Nostr</hn-a>
-		<hn-query
-			kind="0"
-			authors="npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8"
-		>
+		<hn-query kind="0" authors="#">
 			<hn-element
 				hn-template="nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/profile-basic"
 			></hn-element>
 		</hn-query>
-		<h2><slot name="summary"></slot></h2>
+		<hn-query authors="#" d="home" kind="30023">
+			<hn-element id="summary-stuff">
+				<h2><slot name="summary"></slot></h2>
+			</hn-element>
+		</hn-query>
 		<hn-form id="publish">
 			<textarea
 				placeholder="sign my guestbook!"
