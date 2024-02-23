@@ -33,7 +33,7 @@ const routes: Route[] = [
 			}
 
 			return `
-			<hn-query authors="${params.npub}" d="home" kind="30023">
+			<hn-query authors="${params.npub}" d="${params.d}" kind="30023">
 				<hn-element
 					hn-template="nostr:${params.npub}/${params.d}"
 				></hn-element>
