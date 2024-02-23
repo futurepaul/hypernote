@@ -1,4 +1,4 @@
-import NDK, { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+import NDK, { NDKEvent } from "@nostr-dev-kit/ndk";
 
 import {
 	fetchEventOrEvents,
@@ -9,11 +9,9 @@ import {
 	ndkFilterFromAttributes,
 	parseTemplateString,
 	processContent,
-	pubkeyToHexpub,
 	registerHnElement,
 	wrapAll,
 } from "./utils";
-import { parseContent } from "./parseNotes";
 
 const ndk = new NDK({
 	explicitRelayUrls: [
