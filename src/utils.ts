@@ -1,6 +1,10 @@
-// @ts-nocheck
-import NDK, { NDKEvent, NDKFilter, NDKNip07Signer } from "@nostr-dev-kit/ndk";
-import { NostrEvent, nip19 } from "nostr-tools";
+import NDK, {
+	NDKEvent,
+	NDKFilter,
+	NDKNip07Signer,
+	NostrEvent,
+} from "@nostr-dev-kit/ndk";
+import { nip19 } from "nostr-tools";
 
 // markdown stuff
 import { marked } from "marked";

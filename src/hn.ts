@@ -1,4 +1,3 @@
-// @ts-nocheck
 import NDK, { NDKEvent } from "@nostr-dev-kit/ndk";
 
 import {

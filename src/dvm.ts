@@ -1,4 +1,3 @@
-// @ts-nocheck
 // This is normal js but I'm practicing so I can see if I can make hypernote capable of these things
 
 import NDK, { NDKEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk";
