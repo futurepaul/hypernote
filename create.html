@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+		<style>
+			form {
+				display: flex;
+				flex-direction: column;
+				align-items: start;
+				gap: 1rem;
+			}
+
+            #info {
+                padding: 1rem;
+                background-color: lightblue;
+            }
+
+            #result {
+                padding: 1rem;
+                background-color: lightpink;
+            }
+		</style>
+        <script type="module" src="/src/create.ts"></script>
+	</head>
+	<body>
+		<header>
+			<h1>Build your own guestbook!</h1>
+		</header>
+		<main>
+			<p>
+				<strong>Step 1:</strong> upload some images. I recommend the
+				<a href="https://satellite.earth/">satellite.earth</a> cdn.
+			</p>
+			<p><strong>Step 2:</strong> fill out this whole dang form.</p>
+			<h2>The Scary Form</h2>
+			<form id="guestbook-form">
+				<label for="slug">The slug (needs at least one hyphen, will be used as the d tag for both the long-form and the hypernote)</label>
+				<input
+					type="text"
+					id="slug"
+					name="slug"
+					placeholder="a-slug-looks-like-this"
+					required
+				/>
+				<label for="title">The title</label>
+				<input
+					type="text"
+					id="title"
+					name="title"
+					placeholder="A Title"
+					required
+				/>
+				<label for="image">URL for the header image</label>
+				<input
+					type="text"
+					id="image"
+					name="image"
+					placeholder="https://cdn.satellite.earth/0d44d30cc7d9918acfcd1174cb9c41c1f03f11a7899e8a5930009e2ae4a0f993.png"
+					required
+				/>
+				<label for="summary">Summary</label>
+				<input
+					type="text"
+					id="summary"
+					name="summary"
+					placeholder="A summary"
+					required
+				/>
+				<label for="content"
+					>The markdown content (this is the meat of your page! tell
+					us about your hobbies!)</label
+				>
+				<textarea
+					id="content"
+					name="content"
+					placeholder="I like to play the guitar and read books."
+					required
+				/></textarea>
+                <label for="css">CSS (optional, gets put inside a style tag at the top of the page)</label>
+                <textarea
+                    id="css"
+                    name="css"
+                    placeholder="main { background-image: url('https://cdn.satellite.earth/28cdf69ca50e9a15d303e9408e1ee616ada90fcac12cc5db7daef9464adfe453.gif'); }"
+                /></textarea>
+                <label for="freestyle">Freestyle Html (optional, gets put below the markdown stuff)</label>
+                <textarea
+                    id="freestyle"
+                    name="freestyle"
+                    placeholder="<p>Some random extra html you want on the page</p>"
+                /></textarea>
+				<input type="submit" value="Submit" />
+				<div id="info">
+					When you press "submit" it will create a kind 30023 longform
+					note and a kind 32616 hypernote that embeds the longform
+					note in your beautiful html.
+                </div>
+                <div id="result"></div>
+			</form>
+		</main>
+	</body>
+</html>

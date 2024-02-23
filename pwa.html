@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hypernote</title>
+		<style>
+			form {
+				display: flex;
+				flex-direction: column;
+				max-width: 20rem;
+			}
+		</style>
+	</head>
+	<body>
+		<hn-query kind="1063" limit="100" require="thumb">
+			<hn-element id="my-pwa" debug>
+				<style>
+					hn-img img {
+						width: 2rem;
+						height: 2rem;
+					}
+
+					div {
+						display: flex;
+						flex-direction: column;
+					}
+				</style>
+				<div>
+					<hn-img value="thumb"></hn-img>
+					<h3><slot name="name"></slot></h3>
+					<p>url: <slot name="url"></slot></p>
+					<p>magnet: <slot name="magnet"></slot></p>
+					<!-- <p>blurhash: <slot name="blurhash"></slot></p> -->
+				</div>
+				<hr />
+			</hn-element>
+		</hn-query>
+	</body>
+	<!-- <script type="module" src="/src/designdemo.ts"></script> -->
+	<script type="module" src="/src/hn.ts"></script>
+</html>

@@ -1,5 +1,3 @@
-const root = document.getElementById("root");
-
 type Route = {
 	path: string;
 	getTemplate?: (params?: { npub: string; d: string }) => string;
@@ -35,9 +33,11 @@ const routes: Route[] = [
 			}
 
 			return `
-        <hn-element
-            hn-template="nostr:${params.npub}/${params.d}"
-        ></hn-element>`;
+			<hn-query authors="${params.npub}" d="${params.d}" kind="30023">
+				<hn-element
+					hn-template="nostr:${params.npub}/${params.d}"
+				></hn-element>
+			</hn-query>`;
 		},
 	},
 ];

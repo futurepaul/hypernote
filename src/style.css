@@ -9,6 +9,10 @@ body {
 	margin: 0;
 }
 
+#hypernote-header {
+	padding: 0.5em;
+}
+
 @media (prefers-color-scheme: light) {
 	:root {
 		color: black;

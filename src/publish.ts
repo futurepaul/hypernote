@@ -73,6 +73,9 @@ const ndk = new NDK({
 	explicitRelayUrls: [
 		"wss://pablof7z.nostr1.com",
 		"wss://nostr-pub.wellorder.net",
+		"wss://nos.lol",
+		"wss://offchain.pub",
+		"wss://relay.damus.io",
 	],
 	enableOutboxModel: false,
 });
