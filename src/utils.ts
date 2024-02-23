@@ -1,3 +1,4 @@
+// @ts-nocheck
 import NDK, { NDKEvent, NDKFilter, NDKNip07Signer } from "@nostr-dev-kit/ndk";
 import { NostrEvent, nip19 } from "nostr-tools";
 

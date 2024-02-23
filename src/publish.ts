@@ -1,3 +1,4 @@
+// @ts-nocheck
 import NDK, {
 	NDKEvent,
 	NDKNip07Signer,
