@@ -5,6 +5,8 @@ import NDK, {
 } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 
+const hexpub = await window.nostr?.getPublicKey();
+
 class HNElement extends NDKEvent {
 	constructor(ndk: NDK | undefined, dTagName: string) {
 		super(ndk, undefined);
@@ -84,9 +86,7 @@ await ndk.connect(6000);
 
 const kind32616Events = await ndk.fetchEvents({
 	kinds: [32616 as number],
-	authors: [
-		"0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
-	],
+	authors: [hexpub as string],
 	// "#d": [],
 	// tags: [["d", "test9"]]
 });
