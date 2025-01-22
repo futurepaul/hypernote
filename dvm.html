@@ -13,28 +13,126 @@
 		</style>
 	</head>
 	<body>
-		<form id="dvmrequest">
-			<textarea
-				placeholder="put some json here!"
-				name="i"
-				cols="50"
-				rows="10"
-			></textarea>
-			<input type="hidden" name="kind" value="5600" />
-			<button type="submit">Send Request</button>
-		</form>
-		<h1>Form Result ID</h1>
-		<button id="refreshresult">Refresh</button>
-		<div id="dvmresult"></div>
-		<!-- <hn-query
-			kind="7000"
-			e="969a87decb2cce71ed5e54846d347a2fade1d5ec6f9753c9c6346307ab5fc1fe"
-		></hn-query> -->
-		<h1>Requests</h1>
-		<hn-query kind="5600"> </hn-query>
-		<h1>Responses</h1>
-		<hn-query kind="6600"> </hn-query>
+		<hn-query>
+			<template id="chess-dvm">
+				<style>
+					pre {
+						white-space: pre-wrap;
+						word-wrap: break-word;
+						background-color: #f0f0f0;
+						padding: 1rem;
+						border-radius: 2px;
+					}
+
+					form {
+						display: flex;
+						flex-direction: column;
+						gap: 1rem;
+					}
+
+					#input {
+						display: flex;
+						flex-direction: column;
+						gap: 1rem;
+					}
+
+					#output {
+						display: flex;
+						flex-direction: column;
+						gap: 1rem;
+					}
+				</style>
+				<section>
+					<h1>Chess DVM</h1>
+					<p>
+						Powered by ben's
+						<a href="https://github.com/benthecarman/wasm-dvm"
+							>wasm-dvm</a
+						>
+						and <a href="https://hypernote.club">hypernote</a>.
+					</p>
+					<p>Send a request to the chess dvm to get a move.</p>
+					<p>Sample request:</p>
+					<pre>
+{
+	"url": "https://github.com/benthecarman/wasm-plugins/releases/download/v0.1.1/chess.wasm",
+	"checksum": "669c058e8fe8b601c3f34e5bf5bc19f7a63c4668cb7bc23aaff576a51bc25db9",
+	"function": "calculate_next_move",
+	"input": "{ \"board\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\", \"depth\": 3}",
+	"time": 1000
+}</pre
+					>
+					<p>What it means:</p>
+					<ul>
+						<li>
+							<strong>url</strong>: the url of the wasm to run
+						</li>
+						<li>
+							<strong>checksum</strong>: the checksum of the wasm
+						</li>
+						<li><strong>function</strong>: the function to call</li>
+						<li>
+							<strong>input</strong>: input arguments to the
+							function
+						</li>
+						<li>
+							<strong>time</strong>: the time budget before it
+							times out
+						</li>
+					</ul>
+					<hn-form target="#dvmresult">
+						<textarea
+							placeholder="put some json here!"
+							name="i"
+							cols="50"
+							rows="10"
+						></textarea>
+						<input type="hidden" name="kind" value="5600" />
+						<button type="submit">Send Request</button>
+					</hn-form>
+					<div id="input">
+						<h1>Kind 5600 Submission</h1>
+						<!-- TODO: this still doesn't show anything after the form is submitted -->
+						<hn-query id="dvmresult" event="#"></hn-query>
+					</div>
+					<div id="output">
+						<h2>Kind 7000 Query</h2>
+						<hn-query id="dvmresult" kind="7000" e="#" limit="1">
+							<hn-element id="payment-required">
+								<style>
+									pre {
+										white-space: pre-wrap;
+										word-wrap: break-word;
+									}
+								</style>
+								<hn-a value="id"><slot name="id"></slot></hn-a>
+								<div>
+									<strong>Amount:</strong>
+									<slot name="tag.amount.1"></slot> millisats
+								</div>
+								<div>
+									<strong>Invoice:</strong>
+									<pre>
+<slot name="tag.amount.2"></slot>
+						</pre>
+									<hn-qr value="tag.amount.2"></hn-qr>
+									<strong>E:</strong>
+									<slot name="tag.e.1"></slot>
+								</div>
+							</hn-element>
+						</hn-query>
+						<h2>Kind 6600 Query</h2>
+						<hn-query id="dvmresult" kind="6600" e="#" limit="1">
+							<hn-element id="dvm-answer">
+								<hn-a value="id"><slot name="id"></slot></hn-a>
+								<slot name="content"></slot>
+							</hn-element>
+						</hn-query>
+						<hn-refresh>Refresh Queries</hn-refresh>
+					</div>
+				</section>
+			</template>
+		</hn-query>
 	</body>
-	<script type="module" src="/src/designdemo.ts"></script>
-	<script type="module" src="/src/dvm.ts"></script>
+	<script type="module" src="/src/hn.ts"></script>
 </html>

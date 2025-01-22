@@ -12,16 +12,13 @@ const routes: Route[] = [
 				<a href="/sec-demo1.html">Sec Presentation</a>
 			</li>
 			<li>
-				<a href="/design.html">Design Demo</a>
+				<a href="/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-guestbook">Guestbook</a>
+			</li>
+			<li>
+				<a href="/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/chess-dvm">DVM</a>
 			</li>
 			<li>
 				<a href="/publish.html">Publish</a>
-			</li>
-			<li>
-				<a href="/guestbook.html">Guestbook</a>
-			</li>
-			<li>
-				<a href="/dvm.html">DVM</a>
 			</li>
 		</ul>`,
 	},

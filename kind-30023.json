@@ -1,0 +1,418 @@
+[
+  {
+    "created_at": 1708707691,
+    "content": "We're making businesses illegal",
+    "tags": [
+      [
+        "d",
+        "ghole-guestbook"
+      ],
+      [
+        "title",
+        "Ghole Host All Your Gs"
+      ],
+      [
+        "summary",
+        "Sign our guestbook within the next two weeks!"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/5d5ad96d6b1713b86d56f9937835b10f4d893ade7ba21fed33dfa724bfe672ee.png"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "9afbd1bd0c68af2bfcc1a1e6ca76d0b5622d7d4c705a34d8bd62101da99270d5",
+    "sig": "1b9f0f483c1ff3c3531812d7ed9c826c7c9809f8cd566fa059c4463ef9717b8d3dd815513af04fa9b37f46f2b94636c2ffffdede73a3df897567424a14558347"
+  },
+  {
+    "created_at": 1708692957,
+    "content": "\n## WANT YOUR OWN GUESTBOOK LIKE THIS? CHECK OUT [hypernote](https://www.hypernote.club/create.html)\n\nI'm just a normal guy that likes Jesus and bitcoin!\n\nHere are some things you should know about me:\n\n* [my old website](https://paul.lol/)\n* [one of my previous podcasts](https://podcasters.spotify.com/pod/show/futurepaul)\n* [I'm famous for this one thing](https://www.youtube.com/watch?v=trVzyG4zFMU)\n* [my job is really cool](https://mutinywallet.com/)\n\nI\n\nWell that's all for now hope you have a good day!",
+    "tags": [
+      [
+        "d",
+        "my-guestbook"
+      ],
+      [
+        "title",
+        "Thank you for visiting my home page!"
+      ],
+      [
+        "summary",
+        "If you have time please leave me a note to let me know you were here."
+      ],
+      [
+        "published_at",
+        "1706836510"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qqzxsmmdv5pzqrtvswydevzfhrw5ljxnmrpmhy778k5sh2pguncfezks7dry3z3nqvzqqqr4gu8pzuxe"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/0d44d30cc7d9918acfcd1174cb9c41c1f03f11a7899e8a5930009e2ae4a0f993.png"
+      ],
+      [
+        "published_at",
+        "1708650910"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "732dd0b242897d85a2956f26c637774b3f2f6c104ee3e5b82d766479106baed6",
+    "sig": "3b25804818a0e03d14f531b4c349656287f8fe8306b2d02cdc23143cc0f5d8b880a1904bcfd4f3096dda5235aa4f2d781f1fa8a6e4d1538649aec2b5b9cbd33c"
+  },
+  {
+    "created_at": 1708690691,
+    "content": "I test? and then I test!",
+    "tags": [
+      [
+        "d",
+        "testing-123"
+      ],
+      [
+        "title",
+        "still testing"
+      ],
+      [
+        "summary",
+        "I'm always testing"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/9be8c32d0649504c3145d8049f2b037518d700093b69347fc70d25906afa9173.jpg"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "032500f34aa29a35a98f96e5a132571b16dcef6fbd80a07baa2c966acbadd14f",
+    "sig": "5f3097a4e2c6bcb9fbbb0c516bc845a8066231427505c26fc8365d3c88712dfa576df9857a100f9096777db5ecef1f51a1188b9e24228f389248e6e3400e6e15"
+  },
+  {
+    "created_at": 1708103545,
+    "content": "One of my favorite essays of all time is [WrathOfGnon's \"How to Build a Small Town in Texas.\"](https://wrathofgnon.substack.com/p/how-to-build-a-small-town-in-texas)\n\nHe takes something that sounds so foreign, complicated, and unbounded, and breaks it down into a process that sounds so straightforward and obvious that it's almost astonishing that it doesn't happen all the time!\n\nI want there to exist a new operating system for mobile devices. I have very many \"wishes\" for this theoretical OS, and very few powers to grant those wishes. After hearing my thoughts on this subject you will in no way believe this is straightforward, obvious, or be surprised there is no such OS being built.\n\nAnd yet, I _wish such an essay would exist_, so this is my weak first attempt at such a thing.\n\nThe tl;dr: we should build a \"human scale\" operating system. Less code, fewer bugs, more human agency, more human sympathy. That's how we win.\n\n### 1. **Size and borders: “You can’t have a garden without fences.”**\n\nThis ideal OS needs sufficient hardware support, sufficient application support, done with minimal code.\n\nWhat's the least amount of code required to run applications on a \"modern\" phone (5G, high-res touch display, GPU)? That's the operating system.\n\nAs a point of motivation, [QNX fit a whole OS including a web browser on a floppy disk](https://winworldpc.com/product/qnx/144mb-demo) (1.44MB).\n\n![QNX](https://cdn.satellite.earth/7733e0ede9892cbbe227fdac4f6af1155bedef6be677f96a6a62d05f6275e363.png)\n\n[MenuetOS / KolibriOS](https://en.wikipedia.org/wiki/MenuetOS) is another more modern example of an OS that fits on a floppy.\n\n![Kolibri](https://cdn.satellite.earth/05f138081343c1b9c99d96ce02556322310d78f4e90561805a6f5dffd00a664c.png)\n\n### 2. **Water, energy, food and connections: the needs hierarchy of towns.**\n\nAn operating system needs to provide reliable, safe, and permissioned access to underlying hardware capabilities such as storage, memory, CPU, GPU, graphics, sound, and touch input.\n\nSimultaneously, it needs to expose this access in a way that simplifies the work of the application developer, or at the very least does not complicate it.\n\n![problem](https://cdn.satellite.earth/1dab03c87c9b3bd7b48876088829412fdbab1243af8bf8cd8918822b400e1690.png)\n\nCasey Muratori in his [\"The Thirty Million Line Problem\" video essay](https://www.youtube.com/watch?v=kZRE7HIO3vk) blames most of the complexity explosion of modern operating systems on the lack of standardization and over-reliance on software drivers in aspects of the system outside the well-defined CPU ISA (Instruction Set Architecture). He argues a well-defined ISA for using network and graphics hardware could simplify the OS back down to Linux's original 20k lines.\n\nIn the 80s and early 90s many \"apps\" shipped with their own operating systems because it provided the best performance and because the underlying system was simple enough to make this possible.\n\nThe great irony is that modern OS abstractions actually are often a source of additional complexity for the application dev, rather than simplification. The exact same GPU, when passed through an OS, can be exposed to the developer as DirectX 12, Vulkan, or Metal.\n\nThis unnecessary complexity and layering cries out for a protocol.\n\nCasey points out that [experiments in removing layers](https://arrakis.cs.washington.edu/) has shown dramatic performance improvements.\n\n![zoom go fast](https://cdn.satellite.earth/611bb8c0a20b0fe24da22dc70dfdc847bad058fdcb564105b783f0aea752bea4.png)\n\nI believe these performance improvements could perhaps make up for the lack of expensive, megacorp-driven optimizations, and bleeding-edge TSMC chips, that the complex operating systems currently enjoy.\n\n### 3. **Materials and harmony.**\n\nOne of the greatest failings of \"Linux on the desktop\" is that there are so many flavors of everything, there's no cohesive, single vision that can give users a common UX across apps or distros. Freedom to choose results in many choices.\n\n![radix](https://cdn.satellite.earth/5670ce0cf6e96ad346397a784d4406348c6ddc54fd503080c282d6f15186b105.png)\n\nThat said, the modern web seems to have _some_ trend toward a sort of cohesion and shared UI language. And many native apps are built with web views or non-\"native\" toolkits anyways. So it's not worth stressing too much about this.\n\nI do believe, like React for the web, highly popular UI frameworks and toolkits will emerge (and have emerged) for popular efficient languages like Rust, Zig, C, and C++ that will allow developers to make apps out of common components so the wheel is not constantly reinvented.\n\n### 4. **The problem of undeveloped and vacant lots.**\n\nNo matter how good a new operating system is, it's nothing without apps. This was the death of Windows Phone, which in my opinion limited the expressivity of app developers to its detriment. This was also the death of Palm's WebOS, which likely bet on web technologies too early.\n\n![webos](https://cdn.satellite.earth/e89943928bfc646d972a31fce9927f19628891c19de3a4e1c15d3ae5dab928f9.png)\n\nThe modern web is easily powerful enough to serve as a stop-gap for many apps. But for the next operating system to be _better_ than its overly complex predecessors it will require amazing native apps that aren't available on existing systems.\n\nThese better apps can potentially arise out of the operating system's simpler, more minimal abstractions. App developers will (hopefully) be attracted to a system where they can express their intent more directly, rather than fighting against the grain of highly opinionated frameworks like SwiftUI, JetPack Compose, and GTK.\n\n### 5. **Who will live there?**\n\nA new operating system needs users. Early on, this new operating system will be lacking in many features and many killer apps. Who would choose such suffering?\n\nI can think of three primary candidates:\n1. **Cypherpunks.** If you run GrapheneOS you experience a small subset of this suffering. If a new operating system offers one or two novel applications, you might be willing to adopt additional suffering to further live out your cypherpunk vision.\n2. **Developers.** An operating system simple enough to \"hack\" on would be very exciting to a certain kind of developer. Think of the guy with a great Vim config or Emacs environment that he lovingly curates and codes for.\n3. **People who hate change.** Ironically, modern devices, by economic necessity, continue to underserve a huge portion of the population that views a mobile device as a pragmatic tool and loathes the annual (often forced) churn to their user experience. A minimal OS can fight the sort of bitrot that makes unchange so hard for modern software. If it works, it can keep on working.\n\n### 6. **Build to the edge of the lot**\n\nWith a much smaller set of built-in OS SDKs, app developers will need to discover new protocols and methods for inter-app communication and harmony. This will be challenging and is not guaranteed to succeed. But the dream is for non-dev users to finally have access to abstractions as powerful as Unix pipes for their normie workflows.\n\n### 7. Alright, I'm done copying headers from the town-in-Texas piece\n\nIf you're curious and want some imagination fuel, the remaining headers are: \n\n7. **Personality, neighborhoods, and character.**\n8. **The Story, the founding Myth.**\n9. **Build the least valuable lots first.**\n10. **Public space.**\n11. **A grand entrance.**\n12. **How to live without cars.**\n13. **To grid or not to grid.**\n\n### 8. **The goals**\n\nOkay, so in summary here are some of the goals I believe a \"next OS\" should try to achieve, with some hints at methodology:\n\n* Freedom to use, freedom to change (through minimalism)\n* Performance (through minimalism, layer collapse)\n* Fight bitrot / change (through minimalism)\n* Good UX (hard. unlikely to emerge without good monetization)\n* All the apps (probably web tech / PWA / \"enhanced\" PWAs at the outset)\n\n### 9. The hard parts\n\nNaturally, this is a very challenging project. Possibly the hardest part will be Casey's proposal for a broader SoC ISA, which might turn out to be a required foundation for the whole system.\n\nThe other hard part is a browser, which would be necessary to get all these \"free\" web apps.\n\n![serenity os](https://cdn.satellite.earth/a869131274d6e9b951dd284ac7626fd7bf0216f2569335efc2eb5b57f89d5e92.png)\n\nIt's likely that WebKit can be ported to a sufficiently advanced system, but I don't know how much underlying complexity that \"bakes in\" to the OS at the outset. Serenity OS, a \"hobby\" OS for the desktop that's gotten to a truly impressive state, has its own browser Ladybird that covers a surprising amount of web technologies, but is still far from rivaling Chrome, Firefox, or WebKit.\n\n### 10. The good news\n\nOn a positive note, there are a ton of really cool projects that provide reasons to hope that a new mobile operating system is possible in our lifetime. Some of them might even be the building blocks that get us there. Others might serve as testing ground for these ideas before we can get the OS to bring them all together.\n\n- [x] A good money (Bitcoin)\n- [x] Decentralized protocols protocol (Nostr)\n- [x] Modern low-level languages (Rust, Zig)\n- [x] Binary portability / sandboxing (WASM)\n- [x] Portable modern graphics standard (WebGPU)\n- [x] Far-along complex desktop OS projects (Redox OS, Serenity OS)\n- [x] Cross-platform \"native\" GUI libraries (Iced, Egui, Dear Imgui)\n- [x] Cross-platform \"web + native\" frameworks (Tauri, Electron, Capacitor)\n- [x] Cross-platform windowing (Winit, SDL)\n- [x] Linux-based phones (Pinephone, Purism)\n- [x] Open source ISA (RISC-V)\n- [x] \"Reinvent everything\" communication device (Precursor / Betrusted / Xous OS)\n\n### 11. One final optimism\n\nHere's an FPGA running Quake 1. What's bonkers is that this guy define his own ISA ([MRISC32](https://mrisc32.bitsnbites.eu/)), designed a soft CPU to run that ISA on an FPGA, modified a C compiler to target his ISA, [and compiled Quake 1 with that compiler](https://vimeo.com/901506667) (running at 30fps).\n\n![quake on mrisc32](https://cdn.satellite.earth/d67bc86c10e686b85443630c051378073c6d7488280a5332f6cf4f410dbcc25e.png)\n\nThis is an obvious case of genius, but it's also inspirational to me that we have this many high-leverage tools at our disposal that a work of lone genius like this is even possible.\n\nWe shouldn't limit our dreams to match only the methods that have been employed in the past. The methods of the past got us iPhones and Linux on the desktop. Billions of man hours got us our current tech stack. We, by definition, have no way of knowing how much work is necessary to build our next tech stack. That will be a process of discovery. ",
+    "tags": [
+      [
+        "d",
+        "small-os-in-texas"
+      ],
+      [
+        "title",
+        "How to Build a Small Operating system in Texas"
+      ],
+      [
+        "summary",
+        "We should build a \"human scale\" operating system. Less code, fewer bugs, more human agency, more human sympathy."
+      ],
+      [
+        "t",
+        "os"
+      ],
+      [
+        "t",
+        "operating system"
+      ],
+      [
+        "t",
+        "mobile os"
+      ],
+      [
+        "t",
+        "apple"
+      ],
+      [
+        "t",
+        "app store"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/73fdca0fb563a78c7ecbcf9c3d3ba00f1f7510e2203fdd6dc2f4a039c0d832c1.png"
+      ],
+      [
+        "published_at",
+        "1708103545"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qqghxmtpd3kz6mmn945kutt5v4uxzuczyqxkequgmjcynwxaflyd8kxrhwfau0dfpw5z3e8snj9dpu6xfz9rxqcyqqq823cghcykk"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "847c69d37e91be49f1de574e38c0190ec1297d919b8b742b7344f3002b45b1c4",
+    "sig": "6526b3fb732064273f5787b9a18df953873418e1de072eb22bc6431f044cdf99b6a774f2ef232a6e58fd85cdd57ae10ef3812a5b28fadb208de85e1dd79c53e2"
+  },
+  {
+    "created_at": 1706882616,
+    "content": "[back](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide1)  |  [next](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide3)",
+    "tags": [
+      [
+        "d",
+        "demo-slide2"
+      ],
+      [
+        "title",
+        "www"
+      ],
+      [
+        "summary",
+        "1989"
+      ],
+      [
+        "published_at",
+        "1706659200"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/3de9986ffb9a08d0c2820fa26f6993beaefec1577a404b3f01bb6a6057d24400.jpg"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qq9kgetddukhxmrfv3jnyq3qp4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesxpqqqp65w98upem"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "p",
+        "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "c64b4d0499842aa9e0dc7780900dbd84ce6502607cba0bcc758ad108c950a464",
+    "sig": "1cc25cacb0ca6d2b11a7bb2c7253d8219ec6f5f910054c211ab83299ec14d15f50c8163a849c0fd6b5b495641e19133d748f757e5ac25078c759d65fb4a05ebd"
+  },
+  {
+    "created_at": 1706882574,
+    "content": "[back](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide4)",
+    "tags": [
+      [
+        "d",
+        "demo-slide5"
+      ],
+      [
+        "title",
+        "tumblr"
+      ],
+      [
+        "summary",
+        "2007"
+      ],
+      [
+        "published_at",
+        "1706882574"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/7106bcb4e6bc7e578d8c6931ecdfeadb40569714f61407abe87d980b1412d21e.png"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qq9kgetddukhxmrfv3jn2q3qp4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesxpqqqp65wdgzxvn"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "p",
+        "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "1a49baffe23dab593ab73a1087f0e80ca1c0b256316ae2061efb679e08382dfb",
+    "sig": "ff2988c865dc4452b0808ae6de0956bdced05fda09698971e74722e0e4bb4a42084e3562d9cacef8fff8b9e3565c6712aa5fa87ac7ee80023966d40a7145a19c"
+  },
+  {
+    "created_at": 1706882483,
+    "content": "[back](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide3)  |  [next](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide5)",
+    "tags": [
+      [
+        "d",
+        "demo-slide4"
+      ],
+      [
+        "title",
+        "myspace"
+      ],
+      [
+        "summary",
+        "2003"
+      ],
+      [
+        "published_at",
+        "1706882483"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/6a0a6cf6b41ba42dc114e9e5f0c6f7a6b80ec26fe03dfb8b4667e5b59d8f294e.png"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qq9kgetddukhxmrfv3jngq3qp4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesxpqqqp65wnh48td"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "p",
+        "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "9e7687cadc64be5f72b8039d3f8598ff8350903a101218e2437c10c6cc076e10",
+    "sig": "2c4cfcac2cde40b3b9660f000d897ceb7f9e86c99722356ce51ebdaeb2823767bf9db5c2f6b2995df05d2ac6e727a05081177d1c4929b8c8fdd2d2b3da284895"
+  },
+  {
+    "created_at": 1706882366,
+    "content": "[back](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide2) \n |  [next](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide4)",
+    "tags": [
+      [
+        "d",
+        "demo-slide3"
+      ],
+      [
+        "title",
+        "geocities"
+      ],
+      [
+        "summary",
+        "1994"
+      ],
+      [
+        "published_at",
+        "1706882366"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/197c970c42f0b458cc10c932e4a81572e7eeda8d038391b0e100ede4f41fceb3.jpg"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qq9kgetddukhxmrfv3jnxq3qp4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesxpqqqp65wmctq79"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "p",
+        "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "4126488977b316a3b3637a653d9e2be530970274212f6171b87f545e7cc40598",
+    "sig": "4b341ba4d33936b4c871d26a1458c6497af62508d72125203edabd7b757d42e3f75d9d30141f2c5ab69de90f8e567bb3385a63c681f2089ba193a5fd7bcdc733"
+  },
+  {
+    "created_at": 1706836540,
+    "content": "I'm just a normal guy that likes Jesus and bitcoin!\n\nHere are some things you should know about me:\n\n* [my old website](https://paul.lol/)\n* [one of my previous podcasts](https://podcasters.spotify.com/pod/show/futurepaul)\n* [I'm famous for this one thing](https://www.youtube.com/watch?v=trVzyG4zFMU)\n* [my job is really cool](https://mutinywallet.com/)\n\nWell that's all for now hope you have a good day!",
+    "tags": [
+      [
+        "d",
+        "home"
+      ],
+      [
+        "title",
+        "Thank you for visiting my home page!"
+      ],
+      [
+        "summary",
+        "If you have time please leave me a note to let me know you were here."
+      ],
+      [
+        "published_at",
+        "1706836510"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/0d44d30cc7d9918acfcd1174cb9c41c1f03f11a7899e8a5930009e2ae4a0f993.png"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qqzxsmmdv5pzqrtvswydevzfhrw5ljxnmrpmhy778k5sh2pguncfezks7dry3z3nqvzqqqr4gu8pzuxe"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "52f64a24c636b1c3f94bb99742a1f6591fde6e32529be1ed134369729b610823",
+    "sig": "3aa8148af21d724569651d47279bd8268851301704780da9b6da93aa42c95727cdc3a17e473b29be10d4b05c517a278da9e9309cd223e973ab2e1335b2d2043a"
+  },
+  {
+    "created_at": 1706831989,
+    "content": "[next](nostr:npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/demo-slide2)",
+    "tags": [
+      [
+        "d",
+        "demo-slide1"
+      ],
+      [
+        "title",
+        "hypercard"
+      ],
+      [
+        "summary",
+        "1987"
+      ],
+      [
+        "published_at",
+        "1706822973"
+      ],
+      [
+        "image",
+        "https://cdn.satellite.earth/9be8c32d0649504c3145d8049f2b037518d700093b69347fc70d25906afa9173.jpg"
+      ],
+      [
+        "alt",
+        "This is a long form article, you can read it in https://habla.news/a/naddr1qq9kgetddukhxmrfv3jnzq3qp4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesxpqqqp65ww0vzss"
+      ],
+      [
+        "client",
+        "31990:7d4e04503ab26615dd5f29ec08b52943cbe5f17bacc3012b26220caa232ab14c:1687329691033",
+        "wss://relay.nostr.band",
+        "web"
+      ],
+      [
+        "p",
+        "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33"
+      ]
+    ],
+    "kind": 30023,
+    "pubkey": "0d6c8388dcb049b8dd4fc8d3d8c3bb93de3da90ba828e4f09c8ad0f346488a33",
+    "id": "4cced39ddb79d63134069c156b95924af00f014fa51b642efc41c26f64a04d7d",
+    "sig": "4d3e81aff1b1a9ced3f0df65ba075b3b137f1177b3e822ce7fec96978a1a668134c4581cfef4745ff089f00d854fd5b77cf0458bdca7dc8163b4bee8ab689b4f"
+  }
+]

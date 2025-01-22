@@ -1,6 +1,7 @@
 // nostr stuff
 import NDK, { NDKEvent, NDKNip07Signer, NostrEvent } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
+import kind32616 from "../kind-32616.json";
 
 // markdown stuff
 import { marked } from "marked";
@@ -186,16 +187,20 @@ class HyperNoteElement extends HTMLElement {
 			) as HTMLTemplateElement;
 
 			// Clone the template and add it to the dom
-			const newShadow = this.attachShadow({ mode: "open" });
-			newShadow.appendChild(templateElement.content.cloneNode(true));
-			shadowRoot = newShadow;
+			try {
+				const newShadow = this.attachShadow({ mode: "open" });
+				newShadow.appendChild(templateElement.content.cloneNode(true));
+				shadowRoot = newShadow;
+			} catch (e) {
+				console.error("Error attaching shadow", e);
+			}
 		}
 
 		// Find all the named slots
-		const slots = shadowRoot.querySelectorAll("slot");
+		const slots = shadowRoot?.querySelectorAll("slot");
 
 		console.log("hydrating slots", event);
-		slots.forEach((s) => {
+		slots?.forEach((s) => {
 			const field = s.getAttribute("name")!;
 			const fieldParts = field.split(".");
 
@@ -234,6 +239,11 @@ class HyperNoteElement extends HTMLElement {
 
 		// TODO: clean this up!
 		this.hydrateLinks();
+
+		if (!shadowRoot) {
+			console.error("No shadow root found");
+			return;
+		}
 
 		hydrateSpecialElements(shadowRoot, "hn-a", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-time", event, content);
@@ -325,6 +335,15 @@ class HyperNoteElement extends HTMLElement {
 
 	async fetchTemplate(npub: string, templateName: string) {
 		const hexpub = pubkeyToHexpub(npub);
+
+		// Before we fetch the template, try to use the json cache
+
+			const cachedEvent = kind32616.find((e: any) => e.tags.find((t: any) => t[0] === "d" && t[1] === templateName));
+
+		if (cachedEvent) {
+			return cachedEvent.content;
+		}
+
 		const events = await ndk.fetchEvents({
 			kinds: [32616 as number],
 			authors: [hexpub],
@@ -336,9 +355,9 @@ class HyperNoteElement extends HTMLElement {
 			return;
 		}
 
-		const event = events.values().next().value as NostrEvent;
+		const fetchedEvent = events.values().next().value as NostrEvent;
 
-		return event.content;
+		return fetchedEvent.content;
 	}
 }
 
