@@ -477,3 +477,41 @@ async function fetchTemplate(npub: string, templateName: string, ndk: NDK) {
 
 	return event.content;
 }
+
+// Utility functions for managing event IDs via URL params
+export function setEventIdInUrl(eventId: string, targetId: string) {
+	const url = new URL(window.location.href);
+	url.searchParams.set(targetId, eventId);
+	window.history.pushState({}, '', url);
+}
+
+export function getEventIdFromUrl(targetId: string): string | null {
+	const url = new URL(window.location.href);
+	return url.searchParams.get(targetId);
+}
+
+export function updateQueriesWithEventId(queries: NodeListOf<Element>, eventId: string) {
+	console.log("Updating queries with event ID:", eventId);
+	queries.forEach((query) => {
+		if (query instanceof HTMLElement) {
+			// Update whichever attribute is present with a placeholder
+			if (query.getAttribute("event") === "#") {
+				query.setAttribute("event", eventId);
+			} else if (query.getAttribute("e") === "#") {
+				query.setAttribute("e", eventId);
+			}
+		}
+	});
+}
+
+export async function refreshQueriesInOrder(queries: NodeListOf<Element>) {
+	console.log("Refreshing queries in order");
+	for (const query of queries) {
+		if ('fetchQuery' in query && typeof query.fetchQuery === 'function') {
+			console.log("Refreshing query:", query);
+			await query.fetchQuery(true);
+			// Add a small delay between queries to ensure proper order
+			await new Promise(resolve => setTimeout(resolve, 500));
+		}
+	}
+}

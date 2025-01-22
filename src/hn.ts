@@ -1,4 +1,5 @@
 import NDK, { NDKEvent } from "@nostr-dev-kit/ndk";
+import QRCode from "qrcode"
 
 import {
 	fetchEventOrEvents,
@@ -11,11 +12,14 @@ import {
 	processContent,
 	registerHnElement,
 	wrapAll,
+	setEventIdInUrl,
+	updateQueriesWithEventId,
+	refreshQueriesInOrder,
+	getEventIdFromUrl,
 } from "./utils";
 
 const ndk = new NDK({
 	explicitRelayUrls: [
-		"wss://pablof7z.nostr1.com",
 		"wss://nostr-pub.wellorder.net",
 		"wss://nos.lol",
 		"wss://offchain.pub",
@@ -40,8 +44,9 @@ export class HyperNoteQueryElement extends HTMLElement {
 		"limit",
 		"d",
 		"e",
+		"event",
 		"debug",
-		"require",
+		"require"
 	];
 
 	constructor() {
@@ -65,43 +70,76 @@ export class HyperNoteQueryElement extends HTMLElement {
 		if (oldValue === newValue) return;
 		this.log("attributeChangedCallback", name, oldValue, newValue);
 
+		// If the old value was a placeholder (#), or if we're setting a new event ID
 		if (
-			typeof newValue === "string" &&
-			typeof oldValue === "string" &&
-			oldValue.startsWith("#")
+			(typeof oldValue === "string" && oldValue.startsWith("#")) ||
+			name === "e"
 		) {
+			console.log(`Triggering fetchQuery because ${name === "e" ? "e attribute changed" : "placeholder was replaced"}`);
 			try {
 				await this.fetchQuery();
 			} catch (e) {
 				console.error("Error fetching query", e);
 			}
+		} else {
+			console.log(`Not triggering fetchQuery for ${name} change from ${oldValue} to ${newValue}`);
 		}
 	}
 
-	async fetchQuery() {
+	async fetchQuery(isRefresh = false) {
 		// TODO: need to not crash if a bad value is passed somewhere here
 		const kind = this.getAttribute("kind");
 		const authors = this.getAttribute("authors");
 		const limit = this.getAttribute("limit");
 		const event = this.getAttribute("event");
+		const e = this.getAttribute("e");
 		const d = this.getAttribute("d");
 		const a = this.getAttribute("a");
-		const e = this.getAttribute("e");
 		const require = this.getAttribute("require");
 
-		if (authors?.startsWith("#")) {
+		// Skip placeholder resolution during refresh
+		if (!isRefresh && e?.startsWith("#")) {
+			console.log("Found reference to parent event ID:", e);
+			// Find the parent hn-query
+			const parentQuery = this.closest("hn-query") as HyperNoteQueryElement;
+			console.log("Parent query:", parentQuery);
+			if (parentQuery) {
+				// If the reference is #e, we want the event ID that was queried
+				if (e === "#e" && parentQuery.queryResult.length > 0) {
+					const eventId = parentQuery.queryResult[0].id;
+					console.log("Setting e to parent's queried event ID:", eventId);
+					this.setAttribute("e", eventId);
+					return; // The attributeChangedCallback will trigger another fetchQuery
+				}
+				// Otherwise try to get the e attribute
+				const parentE = parentQuery.getAttribute("e");
+				console.log("Parent event ID:", parentE);
+				if (parentE) {
+					console.log("Setting e to parent's e attribute:", parentE);
+					this.setAttribute("e", parentE);
+					return; // The attributeChangedCallback will trigger another fetchQuery
+				}
+			}
+			console.warn("Could not resolve parent reference:", e);
+			return;
+		}
+
+		// Skip placeholder resolution during refresh
+		if (!isRefresh && authors?.startsWith("#")) {
 			console.warn("Authors starts with #, it's a reference to a field");
 			return;
 		}
 
 		this.log(
-			`fetchQuery... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, d: ${d}, a: ${a}, e: ${e}, require: ${require}`
+			`fetchQuery... kind: ${kind}, authors: ${authors}, limit: ${limit}, event: ${event}, e: ${e}, d: ${d}, a: ${a}, require: ${require}`
 		);
 
 		try {
 			// TODO: validate that the event is a valid hexpub
+			// If there's an event ID, fetch that specific event
 			if (event) {
-				const e = await ndk.fetchEvent(
+				console.log("Fetching specific event by ID:", event);
+				const ev = await ndk.fetchEvent(
 					{
 						ids: [event],
 					},
@@ -109,15 +147,48 @@ export class HyperNoteQueryElement extends HTMLElement {
 						closeOnEose: true,
 					}
 				);
-				if (e) {
-					this.queryResult = [e as NDKEvent];
+				if (ev) {
+					console.log("Found event:", ev.rawEvent());
+					this.queryResult = [ev as NDKEvent];
+					try {
+						console.log("About to render with queryResult:", this.queryResult);
+						await this.render();
+					} catch (e) {
+						console.error("Failed to render", this, e);
+					}
+				} else {
+					console.log("No event found for ID:", event);
 				}
 				return;
-			} else {
+			}
+
+			// If there's an e tag, fetch events that reference this event
+			if (e) {
+				console.log("Fetching events that reference event ID:", e);
 				const filter = ndkFilterFromAttributes(this);
+				console.log("Using filter:", filter);
+				const qr = await fetchEventOrEvents(filter, ndk);
+				console.log("Query results:", qr);
+				// Make sure the returned event includes a tag[] in tags[] that starts with ${require}
+				if (require) {
+					this.queryResult = qr.filter((e) => {
+						const tags = e.tags;
+						console.log("tags", tags);
+						const found = tags.find((t) => t[0] === require);
+						console.log("found", found);
+						return found;
+					});
+				} else {
+					this.queryResult = qr;
+				}
+			} else {
+				// Regular filter-based query
+				const filter = ndkFilterFromAttributes(this);
+				console.log("No event/e specified, using filter:", filter);
 				console.log("filter", filter);
 
 				const qr = await fetchEventOrEvents(filter, ndk);
+				console.log("Query results:", qr);
 				// Make sure the returned event includes a tag[] in tags[] that starts with ${require}
 				if (require) {
 					this.queryResult = qr.filter((e) => {
@@ -136,6 +207,7 @@ export class HyperNoteQueryElement extends HTMLElement {
 		}
 
 		try {
+			console.log("About to render with queryResult:", this.queryResult);
 			await this.render();
 		} catch (e) {
 			console.error("Failed to render", this, e);
@@ -144,21 +216,29 @@ export class HyperNoteQueryElement extends HTMLElement {
 
 	async render() {
 		this.log("render");
-
 		console.log("this.queryResult", this.queryResult);
 
 		const firstChild = this.firstElementChild;
+		console.log("firstChild:", firstChild);
 
 		if (!firstChild) {
 			console.error(
-				"hn-query requires one hn-element or one hn-element child"
+				"hn-query requires one hn-element or one hn-element child. rendering events in pre tags as a fallback"
 			);
+			// Instead of erroring, let's render the events in pre tags as a fallback
+			this.queryResult.forEach((event) => {
+				const pre = document.createElement("pre");
+				pre.style.whiteSpace = "pre-wrap";
+				pre.style.wordBreak = "break-word";
+				pre.innerText = JSON.stringify(event?.rawEvent(), null, 2);
+				this.appendChild(pre);
+			});
 			return;
 		}
 
 		const firstChildTagName = firstChild.tagName.toLowerCase();
+		console.log("firstChildTagName:", firstChildTagName);
 
-		// TODO: more robust
 		if (firstChildTagName === "hn-query") {
 			const authors = firstChild.getAttribute("authors");
 
@@ -182,70 +262,60 @@ export class HyperNoteQueryElement extends HTMLElement {
 					console.log("pubkeys", pubkeys);
 					firstChild.setAttribute("authors", JSON.stringify(pubkeys));
 				}
-
-				// firstChild.setAttribute(
-				// 	"authors",
-				// 	JSON.stringify([
-				// 		"de845999855e6457762af0101b2e957edef941d9f2190c1fec1108420f5f3ce4",
-				// 	])
-				// );
-				// firstChild.render();
 			}
-			return;
-		}
-
-		if (firstChildTagName !== "hn-element") {
-			console.error(
-				"hn-query requires one hn-element or one hn-element child"
-			);
 			return;
 		}
 
 		let template: HTMLTemplateElement | null;
 
 		try {
+			console.log("Attempting to register hn-element:", firstChild);
 			template = await registerHnElement(firstChild, ndk);
+			console.log("Registered template:", template);
 
-			// TODO: this almost works but doesn't
 			if (this.queryResult.length === 0) {
 				const templateId = firstChild.getAttribute("id");
-				console.log("cloning node");
+				console.log("No query results, cloning empty template with ID:", templateId);
 				const clone = template?.content.cloneNode(true);
-				console.log(`attempting to clone ${templateId}`, clone);
+				console.log("Cloned node:", clone);
 				const newElement = document.createElement("hn-element");
 				newElement.attachShadow({ mode: "open" });
 				newElement.shadowRoot?.appendChild(clone!);
 				newElement.setAttribute("id", firstChild.getAttribute("id")!);
 				this.appendChild(newElement);
-				// newElement.render();
 				firstChild.remove();
+				return;
 			}
 		} catch (e) {
 			console.error("error registering hn-element", e);
+			return;
 		}
 
 		const templateId = firstChild.getAttribute("id");
+		console.log("Template ID for results:", templateId);
 
 		if (!templateId) {
 			console.error("hn-element requires an id");
 			return;
 		}
 
-		this.queryResult.forEach((event, _i) => {
-			console.log("cloning node");
+		console.log("About to render", this.queryResult.length, "results");
+		this.queryResult.forEach((event, i) => {
+			console.log(`Rendering result ${i}:`, event.rawEvent());
 			const clone = template?.content.cloneNode(true);
-			console.log(`attempting to clone ${templateId}`, clone);
+			console.log(`Cloned template for result ${i}:`, clone);
 			const newElement = document.createElement("hn-element");
 			newElement.attachShadow({ mode: "open" });
 			newElement.shadowRoot?.appendChild(clone!);
-			newElement.setAttribute("id", firstChild.getAttribute("id")!);
+			newElement.setAttribute("id", templateId);
 			newElement.setAttribute(
 				"hn-event-data",
 				JSON.stringify(event?.rawEvent())
 			);
 			this.appendChild(newElement);
-			firstChild.remove();
+			console.log(`Added new element for result ${i}`);
 		});
+		firstChild.remove();
 
 		if (this.hasAttribute("debug")) {
 			const wrapperDiv = document.createElement("div");
@@ -324,6 +394,7 @@ class HyperNoteElement extends HTMLElement {
 		this.setAttribute("style", "display: revert");
 
 		const event = JSON.parse(this.getAttribute("hn-event-data") || "{}");
+		console.log("Event data for hydration:", event);
 
 		if (!event) {
 			console.error("Tried to render without event data");
@@ -331,13 +402,15 @@ class HyperNoteElement extends HTMLElement {
 		}
 
 		let content = processContent(event.content);
+		console.log("Processed content:", content);
 
 		let shadowRoot = this.shadowRoot;
 
 		if (!shadowRoot) {
 			const templateElement = document.querySelector(
-				"#" + this.templateName
+				"#" + this.getAttribute("id")
 			) as HTMLTemplateElement;
+			console.log("Found template element:", templateElement);
 
 			// Clone the template and add it to the dom
 			const newShadow = this.attachShadow({ mode: "open" });
@@ -347,52 +420,74 @@ class HyperNoteElement extends HTMLElement {
 
 		// Find all the named slots
 		const slots = shadowRoot.querySelectorAll("slot");
-		console.log("slots", slots);
+		console.log("Found slots:", slots);
 
 		console.log("hydrating slots", event);
 		slots.forEach((s) => {
 			const field = s.getAttribute("name")!;
+			console.log("Processing slot with name:", field);
 			const fieldParts = field.split(".");
 
-			if (!field || !event || !content) {
-				console.error("No field, event, or content found");
-				// return;
-			} else {
-				// If the field isn't in the event or the content we need to look in the tags
-				if (!event[field] && !content[fieldParts[1]]) {
-					console.error(
-						`No field found for ${field}, looking in tags`
-					);
+			if (!field) {
+				console.error("No field name found on slot");
+				return;
+			}
 
-					const tags = event.tags;
-					console.log("tags", tags);
-					// Tags are formatted as an array of ["key", "value"] arrays
-					// We need to find the tag with the key we're looking for
-					const tag = tags.find((t: string[]) => t[0] === field);
-					if (tag) {
+			// If the field starts with "tag.", we're looking for a specific tag value
+			if (field.startsWith("tag.")) {
+				const [_, tagName, ...indices] = fieldParts;
+				console.log(`Looking for tag ${tagName} with indices:`, indices);
+
+				const tags = event.tags;
+				console.log("Looking through tags:", tags);
+				// Find the tag with the matching name
+				const tag = tags.find((t: string[]) => t[0] === tagName);
+				console.log("Found tag:", tag);
+				if (tag) {
+					// If we have indices, get the specific value
+					if (indices.length > 0) {
+						const index = parseInt(indices[0]);
+						console.log(`Getting value at index ${index}:`, tag[index]);
+						s.innerText = tag[index];
+					} else {
+						// Otherwise get the first value
+						console.log("Getting first value:", tag[1]);
 						s.innerText = tag[1];
 					}
-				} else {
-					if (fieldParts.length === 1) {
-						// TODO: why can't I parse shit it gets clobbered :(
-						// if (field === "content") {
-						// 	if (event.content) {
-						// 		s.innerHTML = event[field];
-						// 	}
-						// } else {
-						// 	s.innerText = event[field];
-						// }
-						s.innerText = event[field];
-					}
+				}
+				return;
+			}
 
-					if (fieldParts.length === 2) {
-						s.innerText = content[fieldParts[1]];
-					}
+			// Handle regular event fields and content fields
+			if (!event[field] && !content?.[fieldParts[1]]) {
+				console.log(
+					`No field found for ${field}, looking in tags`
+				);
+
+				const tags = event.tags;
+				console.log("Looking through tags:", tags);
+				// Tags are formatted as an array of ["key", "value"] arrays
+				// We need to find the tag with the key we're looking for
+				const tag = tags.find((t: string[]) => t[0] === field);
+				console.log("Found tag:", tag);
+				if (tag) {
+					console.log("Setting slot text to tag value:", tag[1]);
+					s.innerText = tag[1];
+				}
+			} else {
+				if (fieldParts.length === 1) {
+					console.log(`Setting slot text to event field ${field}:`, event[field]);
+					s.innerText = event[field];
 				}
 
-				// Let's see what s looks like now
-				console.log("hydrated slot element", s);
+				if (fieldParts.length === 2) {
+					console.log(`Setting slot text to content field ${fieldParts[1]}:`, content[fieldParts[1]]);
+					s.innerText = content[fieldParts[1]];
+				}
 			}
+
+			// Let's see what s looks like now
+			console.log("Hydrated slot element:", s);
 		});
 
 		// Find all the author attributes that are just a #
@@ -421,11 +516,20 @@ class HyperNoteElement extends HTMLElement {
 			shadowRoot.appendChild(preDiv);
 		}
 
+		// Find all the special elements and set their event data
+		const specialElements = shadowRoot.querySelectorAll(
+			"hn-a, hn-time, hn-img, hn-markdown, hn-iframe, hn-qr"
+		);
+		specialElements.forEach((element) => {
+			element.setAttribute("hn-event-data", JSON.stringify(event));
+		});
+
 		hydrateSpecialElements(shadowRoot, "hn-a", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-time", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-img", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-markdown", event, content);
 		hydrateSpecialElements(shadowRoot, "hn-iframe", event, content);
+		hydrateSpecialElements(shadowRoot, "hn-qr", event, content);
 	}
 }
 
@@ -584,43 +688,94 @@ class HyperNoteFormElement extends SpecialElement {
 
 		newForm?.addEventListener("submit", async (e) => {
 			e.preventDefault();
+			console.log("Form submitted");
 
 			// get the submit data
 			const formData = new FormData(newForm as HTMLFormElement);
-			console.log(Object.fromEntries(formData));
+			console.log("Form data:", Object.fromEntries(formData));
 
-			if (formData.get("content") === "") {
+			if (formData.get("content") === "" && !formData.get("i")) {
 				alert("Please enter some content");
 				return;
 			}
 
-			// TODO: don't hardcode the kind
+			const kind = parseInt(formData.get("kind") as string || "1");
 			const nostrEvent = new NDKEvent(ndk);
-			nostrEvent.kind = 1;
-			nostrEvent.content = formData.get("content") as string;
+			nostrEvent.kind = kind;
+			nostrEvent.content = formData.get("content") as string || "";
 
+			// Handle standard p tag
 			const p = formData.get("p") as string;
 			if (p) {
 				nostrEvent.tags.push(["p", p]);
 			}
 
+			// Handle standard a tag
 			const a = formData.get("a") as string;
-			const aParsed = JSON.parse(a);
-			console.log("aParsed", aParsed);
-			if (aParsed && aParsed.length > 0 && Array.isArray(aParsed)) {
-				nostrEvent.tags.push(["a", ...aParsed]);
+			if (a) {
+				try {
+					const aParsed = JSON.parse(a);
+					if (aParsed && aParsed.length > 0 && Array.isArray(aParsed)) {
+						nostrEvent.tags.push(["a", ...aParsed]);
+					}
+				} catch (e) {
+					console.error("Failed to parse a tag", e);
+				}
 			}
 
-			console.log("nostrEvent", nostrEvent.rawEvent());
+			// Handle i tag for DVM requests
+			const i = formData.get("i") as string;
+			if (i) {
+				try {
+					const iParsed = JSON.parse(i);
+					nostrEvent.tags.push(["i", JSON.stringify(iParsed)]);
+				} catch (e) {
+					console.error("Failed to parse i tag", e);
+				}
+			}
+
+			console.log("About to publish event:", nostrEvent.rawEvent());
 
 			await login(ndk);
 
-			await nostrEvent.publish();
+			try {
+				await nostrEvent.publish();
+				console.log("Event published successfully with ID:", nostrEvent.id);
+			} catch (err) {
+				console.error("Failed to publish event:", err);
+				return;
+			}
 
-			window.location.reload();
+			// Check for target element to update
+			const targetId = this.getAttribute("target");
+			if (!targetId) {
+				console.log("No target ID specified, reloading page");
+				window.location.reload();
+				return;
+			}
+
+			// Strip the # from the target ID
+			const selector = targetId.startsWith("#") ? targetId.substring(1) : targetId;
+			
+			// Find the shadow root we're in
+			const shadowRoot = this.getRootNode() as ShadowRoot;
+			console.log("Found shadow root:", shadowRoot);
+
+			// Find all target hn-query elements within the shadow root
+			const queries = shadowRoot.querySelectorAll(`hn-query#${selector}`);
+			console.log("Found target hn-queries:", queries);
+
+			if (queries.length > 0) {
+				// Update URL with the new event ID
+				setEventIdInUrl(nostrEvent.id, selector);
+				// Update queries with the event ID
+				updateQueriesWithEventId(queries, nostrEvent.id);
+				// Refresh all queries in order
+				await refreshQueriesInOrder(queries);
+			} else {
+				console.error("No target hn-queries found");
+			}
 		});
-
-		console.log("rendering form", newForm);
 
 		this.replaceChildren(newForm);
 	}
@@ -648,12 +803,115 @@ class HyperNoteIframeElement extends SpecialElement {
 	}
 }
 
+class HyperNoteQrCodeElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-qr";
+	}
+
+	async render() {
+		const valueRef = this.getAttribute("value");
+		if (!valueRef) {
+			console.error("No value provided for hn-qr");
+			return;
+		}
+
+		// If the value refers to a tag, get the tag value
+		if (valueRef.startsWith("tag.")) {
+			const [_, tagName, index] = valueRef.split(".");
+			const event = JSON.parse(this.getAttribute("hn-event-data") || "{}");
+			const tag = event.tags?.find((t: string[]) => t[0] === tagName);
+			if (tag && tag[index]) {
+				try {
+					const qr = await QRCode.toDataURL(tag[index]);
+					this.innerHTML = /* html */ `<img src="${qr}" />`;
+				} catch (e) {
+					console.error("Failed to generate QR code:", e);
+				}
+			} else {
+				console.error(`No tag value found for ${valueRef}`);
+			}
+			return;
+		}
+
+		// Otherwise use the value directly
+		try {
+			const qr = await QRCode.toDataURL(valueRef);
+			this.innerHTML = /* html */ `<img src="${qr}" />`;
+		} catch (e) {
+			console.error("Failed to generate QR code:", e);
+		}
+	}
+}
+
+class HyperNoteRefreshElement extends SpecialElement {
+	constructor() {
+		super();
+		this.name = "hn-refresh";
+	}
+
+	render() {
+		// Create a button if it doesn't exist
+		if (!this.querySelector('button')) {
+			const button = document.createElement('button');
+			button.innerText = this.innerHTML || 'Refresh';
+			
+			button.addEventListener('click', async () => {
+				console.log("Refresh button clicked");
+				const shadowRoot = this.getRootNode() as ShadowRoot;
+				
+				// Find the closest hn-form to get its target ID
+				const form = shadowRoot.querySelector('hn-form');
+				if (!form) {
+					console.error("No hn-form found in shadow root");
+					return;
+				}
+
+				const targetId = form.getAttribute('target');
+				if (!targetId) {
+					console.error("No target ID found in form");
+					return;
+				}
+
+				// Strip the # from the target ID
+				const selector = targetId.startsWith("#") ? targetId.substring(1) : targetId;
+				
+				// Get event ID from URL
+				const eventId = getEventIdFromUrl(selector);
+				if (!eventId) {
+					console.error("No event ID found in URL for", selector);
+					return;
+				}
+
+				console.log("Found event ID in URL:", eventId);
+				
+				// Find all queries with this ID
+				const queries = shadowRoot.querySelectorAll(`hn-query#${selector}`);
+				console.log(`Found queries with ID ${selector} to refresh:`, queries);
+
+				if (queries.length === 0) {
+					console.error("No queries found to refresh");
+					return;
+				}
+
+				// Update queries with the event ID and refresh them
+				updateQueriesWithEventId(queries, eventId);
+				await refreshQueriesInOrder(queries);
+			});
+
+			this.replaceChildren(button);
+		}
+	}
+}
+
 customElements.define("hn-a", HyperNoteAElement);
 customElements.define("hn-time", HyperNoteTimeElement);
 customElements.define("hn-img", HyperNoteImgElement);
 customElements.define("hn-markdown", HyperNoteMarkdownElement);
 customElements.define("hn-form", HyperNoteFormElement);
 customElements.define("hn-iframe", HyperNoteIframeElement);
+customElements.define("hn-qr", HyperNoteQrCodeElement);
+customElements.define("hn-refresh", HyperNoteRefreshElement);
 
 customElements.define("hn-element", HyperNoteElement);
 customElements.define("hn-query", HyperNoteQueryElement);

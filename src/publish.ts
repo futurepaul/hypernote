@@ -5,45 +5,37 @@ import NDK, {
 } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 
+const ndk = new NDK({
+	explicitRelayUrls: [
+		"wss://nostr-pub.wellorder.net",
+		"wss://nos.lol",
+		"wss://offchain.pub",
+		"wss://relay.damus.io",
+	],
+	enableOutboxModel: false,
+});
+
+await ndk.connect(6000);
+
+console.log("Checking for window.nostr...", window.nostr);
 const hexpub = await window.nostr?.getPublicKey();
+console.log("Got hexpub:", hexpub);
 
-class HNElement extends NDKEvent {
-	constructor(ndk: NDK | undefined, dTagName: string) {
-		super(ndk, undefined);
+if (!hexpub) {
+	console.log("No hexpub found, showing alert");
+	alert(
+		"This page requires a Nostr extension to work. Make sure to approve some stuff and reload the page."
+	);
+}
 
-		// The kind of the HyperNoteElement event
-		this.kind = 2616;
-
-		const hexpub = this.ndk?.signer?.user().then((user) => {
-			if (user.pubkey) {
-				return user.pubkey;
-			}
-		});
-
-		console.log("hexpub", hexpub);
-
-		// ["a", <kind integer>:<32-bytes lowercase hex of a pubkey>:<d tag value>]
-
-		// const aTag = ["a", `2616:${hexpub}:${dTagName}`];
-
-		let tag = ["d", dTagName];
-		this.tags.push(tag);
-		// console.log("is replaceable", this.isReplaceable());
-
-		console.log(this.rawEvent());
-
-		// this.toNostrEvent();
-
-		// The kind that this element accepts
-		// let tag = ["query", kind.toString()];
-
-		// Optional, if this element expects an author for the query
-		// if (author) {
-		// 	tag.push("author");
-		// }
-		// this.tags.push(tag);
-		console.log("replaceable d tag", this.replaceableDTag());
-	}
+// Only fetch events if we have a hexpub
+let kind32616Events: NDKEvent[] = [];
+if (hexpub) {
+	const events = await ndk.fetchEvents({
+		kinds: [32616 as number],
+		authors: [hexpub],
+	});
+	kind32616Events = Array.from(events);
 }
 
 async function createHnElementEvent(
@@ -57,39 +49,17 @@ async function createHnElementEvent(
 	if (!dtagName || !content) {
 		throw new Error("Missing dtagName or content");
 	}
-	// ["a", `32616:${user?.pubkey}:${dtagName}`],
-	// const user = await ndk.signer?.user();
+
 	const event = new NDKEvent(ndk);
 	event.kind = 32616;
 	event.content = content;
 	event.tags.push(["d", dtagName]);
 
-	// event.toNostrEvent();
 	console.log(event.rawEvent());
 	console.log("replaceable d tag", event.replaceableDTag());
 
 	return event;
 }
-
-const ndk = new NDK({
-	explicitRelayUrls: [
-		"wss://pablof7z.nostr1.com",
-		"wss://nostr-pub.wellorder.net",
-		"wss://nos.lol",
-		"wss://offchain.pub",
-		"wss://relay.damus.io",
-	],
-	enableOutboxModel: false,
-});
-
-await ndk.connect(6000);
-
-const kind32616Events = await ndk.fetchEvents({
-	kinds: [32616 as number],
-	authors: [hexpub as string],
-	// "#d": [],
-	// tags: [["d", "test9"]]
-});
 
 export async function loginWithSecret(skOrNsec: string) {
 	try {
@@ -137,21 +107,19 @@ export async function login() {
 }
 
 export async function publishSnippet(snippet: string, name: string) {
-	// const element = new HNElement(ndk, name);
 	const element = await createHnElementEvent(ndk, name, snippet.trim());
-	// element.content = snippet.trim();
 	await element.publish();
 	console.log("published: ", element.id);
 	return element.id;
 }
 
 export async function signSnippet(snippet: string) {
-	// @ts-expect-error
-	const element = new HNElement(ndk, 1, true);
-	element.content = snippet.trim();
-	await element.sign();
-	console.log("signed: ", element.id);
-	return element.id;
+	const event = new NDKEvent(ndk);
+	event.kind = 32616;
+	event.content = snippet.trim();
+	await event.sign();
+	console.log("signed: ", event.id);
+	return event.id;
 }
 
 const publishForm = document.querySelector("form#publish");
