@@ -1,7 +1,7 @@
 // nostr stuff
 import NDK, { NDKEvent, NDKNip07Signer, NostrEvent } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
-import kind32616 from "../kind-32616.json";
+import kind32616 from "./old_event_cache/kind-32616.json";
 
 // markdown stuff
 import { marked } from "marked";

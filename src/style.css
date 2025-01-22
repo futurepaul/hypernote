@@ -1,21 +1,256 @@
+@font-face {
+	font-family: 'Geist';
+	src: url('/fonts/Geist-Regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Geist';
+	src: url('/fonts/Geist-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Geist Mono';
+	src: url('/fonts/GeistMono-Regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Geist Mono';
+	src: url('/fonts/GeistMono-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+}
+
+/* Geist Mono 300 */
+@font-face {
+	font-family: 'Geist Mono';
+	src: url('/fonts/GeistMono-Light.woff2') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+}
+
+/* Global styles */
 :root {
 	color-scheme: light dark;
-	color: white;
-	background-color: black;
+	color: black;
+	background-color: white;
+	--header-height: 0px; /* Dynamic header height variable */
 }
 
 body {
-	padding: 0;
 	margin: 0;
+	padding-top: var(--header-height); /* Use dynamic header height for padding */
 }
 
+/* Global link styles */
+a {
+	color: #0000EE;
+	text-decoration: underline;
+}
+
+a:visited {
+	color: #0000EE;
+}
+
+/* Header styles */
 #hypernote-header {
-	padding: 0.5em;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: white;
+	z-index: 100;
+	padding: 0.5rem;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	font-family: 'Geist Mono', monospace;
+	text-wrap: balance;
+	border-bottom: 1px solid #000;
 }
 
-@media (prefers-color-scheme: light) {
+#hypernote-header::after {
+	content: '';
+	position: absolute;
+	bottom: -5px;
+	left: 0;
+	right: 0;
+	height: 5px;
+	background: url('/noise.png');
+	background-repeat: repeat;
+	background-size: auto;
+	-webkit-image-rendering: pixelated;
+	image-rendering: pixelated;
+}
+
+/* Add this after the header styles */
+/* Dynamically update header height */
+@supports (height: 100dvh) {
+	#hypernote-header {
+		height: fit-content;
+	}
+}
+
+/* Home page styles */
+.home {
+	margin: 0 auto;
+	max-width: 1200px;
+	padding: 2rem;
+	font-family: 'Geist', system-ui, sans-serif;
+}
+
+.home h1 {
+	font-size: 3rem;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+.home .subtitle {
+	font-size: 1.2rem;
+	margin: 0.5rem 0 3rem 0;
+	font-family: 'Geist Mono', monospace;
+	font-weight: 300;
+}
+
+.home .grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 2rem;
+}
+
+@media (min-width: 768px) {
+	.home .grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media (min-width: 1200px) {
+	.home .grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+.home .card {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+}
+
+.home .card:visited {
+	color: inherit;
+}
+
+.home .card-image {
+	border: 1px solid #000;
+	aspect-ratio: 1;
+	position: relative;
+	display: block;
+	background-size: cover;
+	background-position: left center;
+	background-repeat: no-repeat;
+	margin-bottom: 1rem;
+}
+
+.home .coming-soon .card-image {
+	background: #eee;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Geist Mono', monospace;
+	font-size: 1rem;
+	color: #666;
+}
+
+.home .coming-soon .card-image::before {
+	content: 'coming soon...';
+}
+
+.home .card-image::after {
+	content: '';
+	position: absolute;
+	bottom: -5px;
+	right: -5px;
+	width: 100%;
+	height: 100%;
+	background: url('/noise.png');
+	background-repeat: repeat;
+	background-size: auto;
+	-webkit-image-rendering: pixelated;
+	image-rendering: pixelated;
+	z-index: -1;
+}
+
+.home .card-title {
+	margin: 0;
+	font-size: 1.2rem;
+	font-weight: bold;
+	font-family: 'Geist', system-ui, sans-serif;
+}
+
+.home .card-description {
+	margin: 0.5rem 0 0 0;
+	font-size: 0.9rem;
+	font-family: 'Geist Mono', monospace;
+}
+
+.home .card-tags {
+	position: absolute;
+	bottom: 0.5rem;
+	right: 0.5rem;
+	display: flex;
+	gap: 0.25rem;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.home .kind-tag {
+	background: white;
+	color: black;
+	font-family: 'Geist Mono', monospace;
+	font-size: 0.7rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid black;
+	font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
 	:root {
-		color: black;
-		background-color: white;
+		color: white;
+		background-color: black;
+	}
+
+	#hypernote-header {
+		background: black;
+	}
+
+	#hypernote-header::after {
+		filter: invert(1);
+	}
+
+	.home .card {
+		border-color: white;
+	}
+
+	.home .card::after {
+		filter: invert(1);
+	}
+
+	.home .coming-soon .card-image {
+		background: #222;
+		color: #999;
+	}
+
+	.home .kind-tag {
+		background: black;
+		color: white;
+		border-color: white;
 	}
 }
