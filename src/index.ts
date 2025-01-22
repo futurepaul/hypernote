@@ -45,7 +45,8 @@ const routes: Route[] = [
 			<div class="home">
 				<h1>HyperNote</h1>
 				<p class="subtitle">A hypermedia system<br>built on nostr</p>
-				<p>Hypernote is a <a href="https://hypermedia.systems/hypermedia-a-reintroduction/">hypermedia</a> experiment built on nostr and web technologies. It renders html saved as nostr events. And anyone can publish a nostr event. So, you know, be careful.<p>
+				<p>HyperNote is a <a href="https://hypermedia.systems/hypermedia-a-reintroduction/">hypermedia</a> experiment built on nostr and web technologies. It renders html saved as nostr events. And anyone can publish a nostr event. So, you know, be careful.<p>
+				<p>You can find the code and some technical notes on <a href="https://github.com/futurepaul/hypernote">github</a>.
 				<div class="grid">
 					${card({
 						href: "/sec-demo1.html",

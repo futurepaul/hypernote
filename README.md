@@ -1,10 +1,12 @@
-### Welcome to Hypernote
+### Welcome to HyperNote
 
-WARNING: Hypernote is not finished, not a published spec, and everything can and will be broken. So don't publish your life's work on it yet. And be careful what you sign! You never know what html is lurking.
+WARNING: HyperNote is not finished, not a published spec, and everything can and will be broken. So don't publish your life's work on it yet. And be careful what you sign! You never know what html is lurking.
 
-Right now you can only do one thing with hypernote. [Build your own guestbook](https://www.hypernote.club/create.html)
+Right now the main demo I have for HyperNote is [Build your own guestbook](https://www.hypernote.club/create.html)
 
 To see an example guestbook, [check out mine](https://www.hypernote.club/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-guestbook).
+
+There's also a [chess dvm thing](https://www.hypernote.club/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/chess-dvm) that serves as an example of how hypernote can be used to build interactive applications.
 
 ### The technical explainer
 
