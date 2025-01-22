@@ -3,24 +3,89 @@ type Route = {
 	getTemplate?: (params?: { npub: string; d: string }) => string;
 };
 
+type CardProps = {
+	href?: string;
+	title: string;
+	description: string;
+	tags: string[];
+	isComingSoon?: boolean;
+	image: string;
+};
+
+const card = ({
+	href,
+	title,
+	description,
+	tags,
+	isComingSoon,
+	image,
+}: CardProps) => {
+	const wrapperTag = href ? "a" : "div";
+	const hrefAttr = href ? `href="${href}"` : "";
+	const className = `card${isComingSoon ? " coming-soon" : ""}`;
+	const style = `style="background-image: url('${image}')"`;
+
+	return `
+		<${wrapperTag} ${hrefAttr} class="${className}">
+			<div class="card-image" ${style}>
+				<div class="card-tags">
+					${tags.map((tag) => `<span class="kind-tag">${tag}</span>`).join("\n")}
+				</div>
+			</div>
+			<h2 class="card-title">${title}</h2>
+			<p class="card-description">${description}</p>
+		</${wrapperTag}>
+	`;
+};
+
 const routes: Route[] = [
 	{
 		path: "/",
-		getTemplate: () => `<h1>HyperNote</h1>
-		<ul>
-			<li>
-				<a href="/sec-demo1.html">Sec Presentation</a>
-			</li>
-			<li>
-				<a href="/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-guestbook">Guestbook</a>
-			</li>
-			<li>
-				<a href="/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/chess-dvm">DVM</a>
-			</li>
-			<li>
-				<a href="/publish.html">Publish</a>
-			</li>
-		</ul>`,
+		getTemplate: () => `
+			<div class="home">
+				<h1>HyperNote</h1>
+				<p class="subtitle">A hypermedia system<br>built on nostr</p>
+				<p>Hypernote is a <a href="https://hypermedia.systems/hypermedia-a-reintroduction/">hypermedia</a> experiment built on nostr and web technologies. It renders html saved as nostr events. And anyone can publish a nostr event. So, you know, be careful.<p>
+				<div class="grid">
+					${card({
+						href: "/sec-demo1.html",
+						title: "SEC-01 PRESENTATION",
+						description:
+							"The original introduction to HyperNote. Published as a HyperNote, naturally.",
+						tags: ["KIND 30023", "KIND 32616"],
+						image: "/hypercard-box.jpg",
+					})}
+					${card({
+						href: "/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/my-guestbook",
+						title: "GUESTBOOK",
+						description:
+							"HyperNote's killer app: reinvent the GeoCities guestbook.",
+						tags: [
+							"KIND 30023",
+							"KIND 32616",
+							"HN-FORM",
+							"HN-QUERY",
+						],
+						image: "/guestbook-preview.png",
+					})}
+					${card({
+						href: "/hn/npub1p4kg8zxukpym3h20erfa3samj00rm2gt4q5wfuyu3tg0x3jg3gesvncxf8/chess-dvm",
+						title: "CHESS DVM",
+						description:
+							"Talk to a chess move DVM using HyperNote.",
+						tags: ["HN-FORM", "KIND 5600"],
+						image: "/chess-preview.png",
+					})}
+					${card({
+						title: "HYPERNOTE STORIES",
+						description:
+							"It's like Instagram Stories, but with HyperNote!",
+						tags: ["KIND 32616"],
+						isComingSoon: true,
+						image: "",
+					})}
+				</div>
+			</div>`,
 	},
 	{
 		path: "/hn/:npub/:d",
@@ -100,7 +165,7 @@ class Router {
 
 			// If the route matches the URL, pull out any params from the URL.
 			if (match) {
-				routePathSegments.forEach((segment, i) => {
+				routePathSegments.forEach((segment: string, i: number) => {
 					if (segment[0] === ":") {
 						const propName = segment.slice(1);
 						// @ts-expect-error
@@ -127,3 +192,25 @@ class Router {
 }
 
 const router = new Router(routes);
+
+// Update header height on load and resize
+function updateHeaderHeight() {
+	const header = document.getElementById('hypernote-header');
+	if (header) {
+		const height = header.offsetHeight;
+		document.documentElement.style.setProperty('--header-height', `${height}px`);
+	}
+}
+
+// Initial calculation
+updateHeaderHeight();
+
+// Update on window resize
+window.addEventListener('resize', updateHeaderHeight);
+
+// Update when content changes (for dynamic content)
+const resizeObserver = new ResizeObserver(updateHeaderHeight);
+const header = document.getElementById('hypernote-header');
+if (header) {
+	resizeObserver.observe(header);
+}
